@@ -65,7 +65,7 @@ public class CustomerServiceImp implements CustomerService {
                             HttpStatus.OK);
                 }else{
                     return new ResponseEntity<>(new ResponseDTO("failure",
-                            "Incorrect Mobile Number or Password encrpt",null),
+                            "Incorrect Mobile Number or Password",null),
                             HttpStatus.BAD_REQUEST);
                 }
                 }else{
@@ -168,8 +168,4 @@ public class CustomerServiceImp implements CustomerService {
             }
         }
     }
-
-
-
-
 }
