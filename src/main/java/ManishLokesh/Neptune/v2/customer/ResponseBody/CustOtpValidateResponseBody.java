@@ -13,9 +13,11 @@ public class CustOtpValidateResponseBody {
 
     private String role;
 
+    private String password;
+
     public CustOtpValidateResponseBody(Long id, String createdAt,
                                String fullName, String emailId, String mobileNumber, String gender,
-                               String updatedAt,String jwt,String role){
+                               String updatedAt,String jwt,String role, String password){
         this.id = id;
         this.createdAt = createdAt;
         this.fullName = fullName;
@@ -25,6 +27,7 @@ public class CustOtpValidateResponseBody {
         this.updatedAt = updatedAt;
         this.jwt = jwt;
         this.role = role;
+        this.password = password;
     }
 
     public Long getId() {
@@ -97,5 +100,12 @@ public class CustOtpValidateResponseBody {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

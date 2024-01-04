@@ -60,7 +60,7 @@ public class CustomerServiceImp implements CustomerService {
                     CustLoginResponseBody responseBody = new CustLoginResponseBody(login.getId(),
                             login.getFullName(),login.getCreatedAt(),loginRequestBody.getMobileNumber(),
                             login.getEmailId(),token,login.getGender(),login.getUpdatedAt(),login.getLastLogin(),
-                            login.getRole());
+                            login.getRole(),login.getPassword());
                     return new ResponseEntity<>(new ResponseDTO("success",null,responseBody),
                             HttpStatus.OK);
                 }else{
@@ -158,7 +158,7 @@ public class CustomerServiceImp implements CustomerService {
                     String token = jwtUtil.generateToken(login1.getRole(), login1.getId());
                     CustOtpValidateResponseBody custOtpValidateResponseBody = new CustOtpValidateResponseBody(login1.getId(),
                             login1.getCreatedAt(),login1.getFullName(),login1.getEmailId(),login1.getMobileNumber(),login1.getGender(),
-                            login1.getUpdatedAt(),token,role);
+                            login1.getUpdatedAt(),token,role,login1.getPassword());
                     return new ResponseEntity<>(new ResponseDTO("success",null,custOtpValidateResponseBody)
                             ,HttpStatus.CREATED);
                 }else{

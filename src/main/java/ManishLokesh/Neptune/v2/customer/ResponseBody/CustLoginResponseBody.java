@@ -13,10 +13,12 @@ public class CustLoginResponseBody {
     private String lastLogin;
     private String role;
 
+    private String password;
+
 
     public CustLoginResponseBody(Long id, String fullName, String createdAt, String mobileNumber,
                                  String emailId, String jwt, String gender, String updatedAt, String lastLogin,
-                                 String role){
+                                 String role, String password){
         this.id = id;
         this.fullName = fullName;
         this.createdAt = createdAt;
@@ -27,6 +29,7 @@ public class CustLoginResponseBody {
         this.updatedAt = updatedAt;
         this.lastLogin = lastLogin;
         this.role = role;
+        this.password = password;
     }
 
 
@@ -106,7 +109,15 @@ public class CustLoginResponseBody {
         return role;
     }
 
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public void setRole(String role) {
         this.role = role;
     }
+
 }
