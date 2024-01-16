@@ -23,12 +23,9 @@ public class GetMenuController {
     public JwtUtil jwtUtil;
 
     @GetMapping("api/v2/outlet/{outlet_Id}/menu")
-    public ResponseEntity<ResponseDTO> getMenu(@PathVariable("outlet_Id") String outletId, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
-        String token = auth.replace("Bearer","");
-        if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
+    public ResponseEntity<ResponseDTO> getMenu(@PathVariable("outlet_Id") String outletId) {
             return this.service.getActiveMenu(outletId);
-        }
-        return new ResponseEntity<>(new ResponseDTO("failure","Not authorize to Access",null),HttpStatus.UNAUTHORIZED);
 
     }
 }
+    

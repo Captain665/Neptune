@@ -11,7 +11,6 @@ public class OrderResponseBody {
     private String deliveryDate;
     private String bookingDate;
     private String outletId;
-    private String customerId;
     private String createdAt;
     private String status;
     private String createdBy;
@@ -23,14 +22,17 @@ public class OrderResponseBody {
     private Float gst;
     private Float payable_amount;
     private Object orderItems;
+    private Object outlets;
+    private Object customerDetail;
+
 
     public OrderResponseBody(){
 
     }
 
     public OrderResponseBody(Long id,Float totalAmount, Float gst, Float deliveryCharge, Float payable_amount,String deliveryDate,String bookingDate,
-                             String paymentType,String status,String customerId,String outletId,Object orderItems,String trainName, String trainNo,String stationCode,
-                             String stationName,String coach,String berth,String orderFrom,String pnr,String createdAt,String createdBy){
+                             String paymentType,String status ,String outletId,Object orderItems,String trainName, String trainNo,String stationCode,
+                             String stationName,String coach,String berth,String orderFrom,String pnr,String createdAt,String createdBy, Object outlets,Object customerDetail){
         this.id = id;
         this.totalAmount = totalAmount;
         this.gst = gst;
@@ -40,7 +42,6 @@ public class OrderResponseBody {
         this.bookingDate = bookingDate;
         this.paymentType = paymentType;
         this.status = status;
-        this.customerId = customerId;
         this.outletId = outletId;
         this.orderItems = orderItems;
         this.trainName = trainName;
@@ -53,8 +54,31 @@ public class OrderResponseBody {
         this.pnr = pnr;
         this.createdAt = createdAt;
         this.createdBy = createdBy;
-
+        this.outlets = outlets;
+        this.customerDetail = customerDetail;
     }
+
+
+    public Object getOutlets() {
+        return outlets;
+    }
+
+    public void setOutlets(Object outlets) {
+        this.outlets = outlets;
+    }
+
+    public Object getCustomerDetail() {
+        return customerDetail;
+    }
+
+    public void setCustomerDetail(Object customerDetail) {
+        this.customerDetail = customerDetail;
+    }
+
+    public String getDeliveryDate() {
+        return deliveryDate;
+    }
+
     public Long getId() {
         return id;
     }
@@ -135,13 +159,6 @@ public class OrderResponseBody {
         this.outletId = outletId;
     }
 
-    public String getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
-    }
 
     public String getCreatedAt() {
         return createdAt;

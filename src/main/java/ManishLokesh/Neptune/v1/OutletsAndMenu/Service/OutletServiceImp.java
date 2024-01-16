@@ -26,6 +26,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -211,9 +212,15 @@ public class OutletServiceImp implements OutletService{
     public ResponseEntity<ResponseDTO> CreateNewMenu(Long outletId,CreateMenu createMenu) {
         Optional<Outlet> outletDetails = outletRepo.findById(outletId);
         if(outletRepo.findById(outletId).isPresent()){
-            if(((Float.parseFloat(createMenu.getBasePrice())) * 0.05) == Float.parseFloat(createMenu.getTax())){
-                if(((Float.parseFloat(createMenu.getBasePrice()) + Float.parseFloat(createMenu.getTax()))
-                        == Float.parseFloat(createMenu.getSellingPrice()))){
+            BigDecimal basePrice = new BigDecimal(createMenu.getBasePrice());
+            BigDecimal tax = new BigDecimal(createMenu.getTax());
+            BigDecimal sellingPrice = new BigDecimal(createMenu.getSellingPrice());
+            BigDecimal calculatedTax = basePrice.multiply(new BigDecimal("0.05"));
+            BigDecimal calculatedSellingPrice = basePrice.add(tax);
+            if (calculatedTax.compareTo(tax) == 0 && calculatedSellingPrice.compareTo(sellingPrice) == 0) {
+//            if(((Float.parseFloat(createMenu.getBasePrice())) * 0.05) == Float.parseFloat(createMenu.getTax())){
+//                if(((Float.parseFloat(createMenu.getBasePrice()) + Float.parseFloat(createMenu.getTax()))
+//                        == Float.parseFloat(createMenu.getSellingPrice()))){
                     Menu menu = new Menu();
                     String aggMenuId = String.valueOf((int) (Math.random() * 90000) + 10000);
                     menu.setIrctcMenuId(aggMenuId);
@@ -242,13 +249,15 @@ public class OutletServiceImp implements OutletService{
                             m.getBulkOnly(), m.getIsVegeterian(), m.getImage(), m.getCustomisations(), m.getOpeningTime(),
                             m.getClosingTime(), m.getCreatedAt(), m.getUpdatedAt(), m.getActive());
 
+                    logger.info("menu res {}",menuResponse);
+
                     return new ResponseEntity<>(new ResponseDTO<>("Success", null, menuResponse), HttpStatus.CREATED);
                 }else{
-                    return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect selling price", null), HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect tax or selling price price", null), HttpStatus.BAD_REQUEST);
                 }
-            }else{
-                return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect tax value", null), HttpStatus.BAD_REQUEST);
-            }
+//            }else{
+//                return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect tax value", null), HttpStatus.BAD_REQUEST);
+//            }
 
         }else {
             return new ResponseEntity<>(new ResponseDTO<>("failure", "Outlet is not Present", null), HttpStatus.BAD_REQUEST);

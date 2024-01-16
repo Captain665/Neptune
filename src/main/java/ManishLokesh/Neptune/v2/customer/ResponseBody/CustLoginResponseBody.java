@@ -32,7 +32,6 @@ public class CustLoginResponseBody {
         this.password = password;
     }
 
-
     public Long getId() {
         return id;
     }

@@ -23,11 +23,7 @@ public class GetOutletController {
     public JwtUtil jwtUtil;
 
     @GetMapping("/api/v2/outlet/station/{stationCode}")
-    public ResponseEntity<ResponseDTO> GetOutlet(@PathVariable String stationCode, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
-        String token = auth.replace("Bearer","");
-        if (Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
+    public ResponseEntity<ResponseDTO> GetOutlet(@PathVariable String stationCode) {
             return this.getOutletService.GetOutletAll(stationCode);
-        }
-        return new ResponseEntity<>(new ResponseDTO("failure","Not authorize to Access",null), HttpStatus.UNAUTHORIZED);
     }
 }

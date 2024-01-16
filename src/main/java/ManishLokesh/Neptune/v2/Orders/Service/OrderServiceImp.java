@@ -2,7 +2,9 @@ package ManishLokesh.Neptune.v2.Orders.Service;
 
 import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Menu;
+import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Outlet;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Repository.MenuRepo;
+import ManishLokesh.Neptune.v1.OutletsAndMenu.Repository.OutletRepo;
 import ManishLokesh.Neptune.v2.Orders.Entity.OrderItems;
 import ManishLokesh.Neptune.v2.Orders.Entity.Orders;
 import ManishLokesh.Neptune.v2.Orders.Repository.OrderItemsRepository;
@@ -11,6 +13,10 @@ import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderItemRequest;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderRequestBody;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
 import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderResponseBody;
+import ManishLokesh.Neptune.v2.customer.Entity.Customer;
+import ManishLokesh.Neptune.v2.customer.Repository.CustLoginRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +41,31 @@ public class OrderServiceImp implements OrderService{
     @Autowired
     public OrderItemsRepository orderItemsRepository;
 
+    @Autowired
+    public OutletRepo outletRepo;
+
+    public Logger logger = LoggerFactory.getLogger("app.v2.order.service");
+
+    @Autowired
+    public CustLoginRepo custLoginRepo;
+
     @Override
     public ResponseEntity<ResponseDTO> addOrder(OrderRequestBody orderRequestBody) {
+        Object outletValid = outletRepo.findById(Long.parseLong(orderRequestBody.getOutletId()));
+        logger.info("requst body {} ",orderRequestBody);
+        logger.info("outlet preset {}",outletValid.toString());
 
+        if(((Optional<?>) outletValid).isEmpty()){
+            return  new ResponseEntity<>(
+                    new ResponseDTO("failure", "outlet is not present", null),
+                    HttpStatus.BAD_REQUEST);
+        }
+        Object customerData = custLoginRepo.findById(Long.parseLong(orderRequestBody.getCustomerId()));
+        if(((Optional<?>) customerData).isEmpty()){
+            return  new ResponseEntity<>(
+                    new ResponseDTO("failure", "customer id is not present", null),
+                    HttpStatus.BAD_REQUEST);
+        }
         List<OrderItemRequest> itemsList = orderRequestBody.getOrderItem();
         List<Long> itemIds = itemsList.stream().map(OrderItemRequest::getItemId).filter(Objects::nonNull).collect(Collectors.toList());
         List<Menu> menuList = itemIds.stream().map(itemId -> menuRepo.findById(itemId)).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
@@ -85,11 +113,13 @@ public class OrderServiceImp implements OrderService{
             orderItems.setOrderId(String.valueOf(saveOrder.getId()));
         }
         List<OrderItems> orderItems1 = orderItemsRepository.saveAllAndFlush(orderItemsList);
+        Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
+        Object customer   = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
 
         OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(),saveOrder.getTotalAmount(),saveOrder.getGst(),saveOrder.getDeliveryCharge(),
                 saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
-                saveOrder.getCustomerId(),saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
-                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy());
+                saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
+                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(),outlet,customer);
         return new ResponseEntity<>(
                 new ResponseDTO("success", null, orderResponseBody),
                 HttpStatus.CREATED);
@@ -98,19 +128,23 @@ public class OrderServiceImp implements OrderService{
     @Override
     public ResponseEntity<ResponseDTO> getOrder(Long orderId) {
         Optional<Orders> orders = orderRepository.findById(orderId);
-        if(orders.isPresent()){
+        if(!orders.isPresent()) {
+            return new ResponseEntity<>(new ResponseDTO<>("failure","Invalid order Id",null),
+                    HttpStatus.BAD_REQUEST);
+        }
             Orders saveOrder = orders.get();
             List<OrderItems> orderItems1 = orderItemsRepository.findByOrderId(String.valueOf(orderId));
+            Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
+            Object customer = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
+
             OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(),saveOrder.getTotalAmount(),saveOrder.getGst(),saveOrder.getDeliveryCharge(),
                     saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
-                    saveOrder.getCustomerId(),saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
-                    saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy());
+                    saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
+                    saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(), outlet,customer);
 
             return new ResponseEntity<>(new ResponseDTO<>("success",null,orderResponseBody),
                     HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new ResponseDTO<>("failure","Incorrect order Id",null),
-                HttpStatus.BAD_REQUEST);
+
     }
 
     @Override
@@ -129,7 +163,6 @@ public class OrderServiceImp implements OrderService{
             orderBody.getDeliveryDate(orders.getDeliveryDate());
             orderBody.setBookingDate(orders.getBookingDate());
             orderBody.setOutletId(orders.getOutletId());
-            orderBody.setCustomerId(orders.getCustomerId());
             orderBody.setCreatedAt(orders.getCreatedAt());
             orderBody.setStatus(orders.getStatus());
             orderBody.setCreatedBy(orders.getCreatedBy());
@@ -140,7 +173,10 @@ public class OrderServiceImp implements OrderService{
             orderBody.setTotalAmount(orders.getTotalAmount());
             orderBody.setGst(orders.getGst());
             orderBody.setPayable_amount(orders.getPayable_amount());
+            orderBody.setDeliveryDate(orders.getDeliveryDate());
             List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orders.getId()));
+            Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders.getOutletId())));
+            orderBody.setOutlets(outlet);
             orderBody.setOrderItems(orderItemsList);
             orderResponseBodies.add(orderBody);
         }
@@ -152,20 +188,23 @@ public class OrderServiceImp implements OrderService{
     @Override
     public ResponseEntity<ResponseDTO> updateStatus(OrderStatusBody orderStatusBody, Long orderId) {
         Optional<Orders> orders = orderRepository.findById(orderId);
-        if(orders.isPresent()){
+        if(!orders.isPresent()){
+            return new ResponseEntity<>(new ResponseDTO<>("failure","order is not found",null),
+                    HttpStatus.BAD_REQUEST);
+        }
             Orders orders1 = orders.get();
             orders1.setStatus(orderStatusBody.getStatus());
             Orders orders2 = orderRepository.save(orders1);
             List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orderId));
+            Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders1.getOutletId())));
+            Object customer = custLoginRepo.findById(Long.parseLong(orders1.getCustomerId()));
+
             OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(),orders2.getTotalAmount(),orders2.getGst(),orders2.getDeliveryCharge(),
                     orders2.getPayable_amount(),orders2.getDeliveryDate(),orders2.getBookingDate(),orders2.getPaymentType(),orders2.getStatus(),
-                    orders2.getCustomerId(),orders2.getOutletId(),orderItemsList,orders2.getTrainName(), orders2.getTrainNo(), orders2.getStationCode(), orders2.getStationName(),
-                    orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(),orders2.getPnr(),orders2.getCreatedAt(),orders2.getCreatedBy());
+                    orders2.getOutletId(),orderItemsList,orders2.getTrainName(), orders2.getTrainNo(), orders2.getStationCode(), orders2.getStationName(),
+                    orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(),orders2.getPnr(),orders2.getCreatedAt(),orders2.getCreatedBy(),outlet,customer);
 
             return new ResponseEntity<>(new ResponseDTO<>("failure",null,orderResponseBody),
                     HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new ResponseDTO<>("failure","order is not found",null),
-                HttpStatus.BAD_REQUEST);
     }
 }

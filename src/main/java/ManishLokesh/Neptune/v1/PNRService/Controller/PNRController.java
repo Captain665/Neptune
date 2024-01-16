@@ -15,7 +15,7 @@ public class PNRController {
     @Autowired
     public PNRservice pnRservice;
 
-    @GetMapping("api/v1/pnr/{PNR}")
+    @GetMapping("api/v2/pnr/{PNR}")
     public ResponseEntity<ResponseDTO> getPnrDetails(@PathVariable String PNR){
         if(PNR.length() == 10){
             return this.pnRservice.getPnrDetails(Long.parseLong(PNR));
