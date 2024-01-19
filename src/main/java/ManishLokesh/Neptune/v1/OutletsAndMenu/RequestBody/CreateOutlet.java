@@ -9,7 +9,7 @@ public class CreateOutlet {
     private Integer orderTiming;
     private String openingTime;
     private String closingTime;
-    private Integer deliveryCost;
+    private Double deliveryCost;
     private String address;
     private String city;
     private String state;
@@ -76,11 +76,11 @@ public class CreateOutlet {
         this.closingTime = closingTime;
     }
 
-    public Integer getDeliveryCost() {
+    public Double getDeliveryCost() {
         return deliveryCost;
     }
 
-    public void setDeliveryCost(Integer deliveryCost) {
+    public void setDeliveryCost(Double deliveryCost) {
         this.deliveryCost = deliveryCost;
     }
 

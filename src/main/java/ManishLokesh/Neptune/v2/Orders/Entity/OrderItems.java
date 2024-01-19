@@ -7,17 +7,25 @@ import javax.persistence.*;
 public class OrderItems {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String orderId;
     private Integer quantity;
-    private Float basePrice;
+    private Double basePrice;
     private String itemName;
     private Long itemId;
     private String description;
-    private Float tax;
+    private Double tax;
     private String createdAt;
+    private Boolean isVeg;
 
+    public Boolean getVeg() {
+        return isVeg;
+    }
+
+    public void setVeg(Boolean veg) {
+        isVeg = veg;
+    }
 
     public Long getId() {
         return id;
@@ -43,11 +51,11 @@ public class OrderItems {
         this.quantity = quantity;
     }
 
-    public Float getBasePrice() {
+    public Double getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(Float basePrice) {
+    public void setBasePrice(Double basePrice) {
         this.basePrice = basePrice;
     }
 
@@ -75,11 +83,11 @@ public class OrderItems {
         this.description = description;
     }
 
-    public Float getTax() {
+    public Double getTax() {
         return tax;
     }
 
-    public void setTax(Float tax) {
+    public void setTax(Double tax) {
         this.tax = tax;
     }
 

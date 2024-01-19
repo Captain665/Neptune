@@ -4,9 +4,9 @@ public class MenuResponse {
     private Long id;
     private String name;
     private String description;
-    private String basePrice;
-    private String tax;
-    private String sellingPrice;
+    private Double basePrice;
+    private Double tax;
+    private Double sellingPrice;
     private String foodType;
     private String cuisine;
     private String tags;
@@ -23,8 +23,8 @@ public class MenuResponse {
 
 
 
-    public MenuResponse(Long id, String name, String description, String basePrice, String tax,
-                        String sellingPrice, String foodType, String cuisine, String tags, Boolean bulkOnly,
+    public MenuResponse(Long id, String name, String description, Double basePrice, Double tax,
+                        Double sellingPrice, String foodType, String cuisine, String tags, Boolean bulkOnly,
                         Boolean isVegeterian, String image, String customisations, String openingTime,
                         String closingTime, String createdAt, String updatedAt, Boolean active){
         this.id = id;
@@ -72,28 +72,36 @@ public class MenuResponse {
         this.description = description;
     }
 
-    public String getBasePrice() {
+    public Double getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(String basePrice) {
+    public void setBasePrice(Double basePrice) {
         this.basePrice = basePrice;
     }
 
-    public String getTax() {
+    public Double getTax() {
         return tax;
     }
 
-    public void setTax(String tax) {
+    public void setTax(Double tax) {
         this.tax = tax;
     }
 
-    public String getSellingPrice() {
+    public Double getSellingPrice() {
         return sellingPrice;
     }
 
-    public void setSellingPrice(String sellingPrice) {
+    public void setSellingPrice(Double sellingPrice) {
         this.sellingPrice = sellingPrice;
+    }
+
+    public Boolean getVegeterian() {
+        return isVegeterian;
+    }
+
+    public void setVegeterian(Boolean vegeterian) {
+        isVegeterian = vegeterian;
     }
 
     public String getFoodType() {

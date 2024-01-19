@@ -1,8 +1,5 @@
 package ManishLokesh.Neptune.v1.OutletsAndMenu.ReponseBody;
 
-import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.OutletClosing;
-
-import java.util.List;
 
 public class CreateOutletResponse <T>{
 
@@ -12,7 +9,7 @@ public class CreateOutletResponse <T>{
     private Integer orderTiming;
     private String openingTime;
     private String closingTime;
-    private Integer deliveryCost;
+    private Double deliveryCost;
     private String address;
     private String city;
     private String state;
@@ -33,7 +30,7 @@ public class CreateOutletResponse <T>{
 
 
     public CreateOutletResponse(Long id, String outletName, Long minOrderValue, Integer orderTiming, String openingTime,
-                                String closingTime, Integer deliveryCost, String address, String city, String state,
+                                String closingTime, Double deliveryCost, String address, String city, String state,
                                 Boolean prepaid, String companyName, String panCard, String gstNo, String fssaiNo,
                                 String fssaiValidUpto, Boolean active,String createdAt, Object outletClosing ,
                                 String updatedAt, String logoImage, String emailId, String mobileNo,
@@ -124,11 +121,11 @@ public class CreateOutletResponse <T>{
         this.closingTime = closingTime;
     }
 
-    public Integer getDeliveryCost() {
+    public Double getDeliveryCost() {
         return deliveryCost;
     }
 
-    public void setDeliveryCost(Integer deliveryCost) {
+    public void setDeliveryCost(Double deliveryCost) {
         this.deliveryCost = deliveryCost;
     }
 

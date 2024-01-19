@@ -1,6 +1,7 @@
 package ManishLokesh.Neptune.v1.OutletsAndMenu.Entity;
 
 import javax.persistence.*;
+
 @Entity
 @Table(name = "menus")
 public class Menu {
@@ -10,9 +11,9 @@ public class Menu {
     private String outletId;
     private String name;
     private String description;
-    private String basePrice;
-    private String tax;
-    private String sellingPrice;
+    private Double basePrice;
+    private Double tax;
+    private Double sellingPrice;
     private String foodType;
     private String cuisine;
     private String tags;
@@ -60,27 +61,27 @@ public class Menu {
         this.description = description;
     }
 
-    public String getBasePrice() {
+    public Double getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(String basePrice) {
+    public void setBasePrice(Double basePrice) {
         this.basePrice = basePrice;
     }
 
-    public String getTax() {
+    public Double getTax() {
         return tax;
     }
 
-    public void setTax(String tax) {
+    public void setTax(Double tax) {
         this.tax = tax;
     }
 
-    public String getSellingPrice() {
+    public Double getSellingPrice() {
         return sellingPrice;
     }
 
-    public void setSellingPrice(String sellingPrice) {
+    public void setSellingPrice(Double sellingPrice) {
         this.sellingPrice = sellingPrice;
     }
 

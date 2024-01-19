@@ -16,11 +16,11 @@ public class OrderResponseBody {
     private String createdBy;
     private String pnr;
     private String paymentType;
-    private Float deliveryCharge;
+    private Double deliveryCharge;
     private String orderFrom;
-    private Float totalAmount;
-    private Float gst;
-    private Float payable_amount;
+    private Double totalAmount;
+    private Double gst;
+    private Double payable_amount;
     private Object orderItems;
     private Object outlets;
     private Object customerDetail;
@@ -30,7 +30,7 @@ public class OrderResponseBody {
 
     }
 
-    public OrderResponseBody(Long id,Float totalAmount, Float gst, Float deliveryCharge, Float payable_amount,String deliveryDate,String bookingDate,
+    public OrderResponseBody(Long id,Double totalAmount, Double gst, Double deliveryCharge, Double payable_amount,String deliveryDate,String bookingDate,
                              String paymentType,String status ,String outletId,Object orderItems,String trainName, String trainNo,String stationCode,
                              String stationName,String coach,String berth,String orderFrom,String pnr,String createdAt,String createdBy, Object outlets,Object customerDetail){
         this.id = id;
@@ -75,8 +75,8 @@ public class OrderResponseBody {
         this.customerDetail = customerDetail;
     }
 
-    public String getDeliveryDate() {
-        return deliveryDate;
+    public String getDeliveryDate(String deliveryDate) {
+        return this.deliveryDate;
     }
 
     public Long getId() {
@@ -135,9 +135,6 @@ public class OrderResponseBody {
         this.berth = berth;
     }
 
-    public String getDeliveryDate(String deliveryDate) {
-        return this.deliveryDate;
-    }
 
     public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
@@ -200,11 +197,11 @@ public class OrderResponseBody {
         this.paymentType = paymentType;
     }
 
-    public Float getDeliveryCharge() {
+    public Double getDeliveryCharge() {
         return deliveryCharge;
     }
 
-    public void setDeliveryCharge(Float deliveryCharge) {
+    public void setDeliveryCharge(Double deliveryCharge) {
         this.deliveryCharge = deliveryCharge;
     }
 
@@ -216,27 +213,27 @@ public class OrderResponseBody {
         this.orderFrom = orderFrom;
     }
 
-    public Float getTotalAmount() {
+    public Double getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(Float totalAmount) {
+    public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
     }
 
-    public Float getGst() {
+    public Double getGst() {
         return gst;
     }
 
-    public void setGst(Float gst) {
+    public void setGst(Double gst) {
         this.gst = gst;
     }
 
-    public Float getPayable_amount() {
+    public Double getPayable_amount() {
         return payable_amount;
     }
 
-    public void setPayable_amount(Float payable_amount) {
+    public void setPayable_amount(Double payable_amount) {
         this.payable_amount = payable_amount;
     }
 

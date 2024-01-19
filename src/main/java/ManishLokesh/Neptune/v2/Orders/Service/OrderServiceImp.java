@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,22 +71,27 @@ public class OrderServiceImp implements OrderService{
         List<Long> itemIds = itemsList.stream().map(OrderItemRequest::getItemId).filter(Objects::nonNull).collect(Collectors.toList());
         List<Menu> menuList = itemIds.stream().map(itemId -> menuRepo.findById(itemId)).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
         List<OrderItems> orderItemsList = new ArrayList<>();
-        float subtotalPrice = 0.0F;
+        Double subtotalPrice = 0.0;
         for(Menu menu : menuList){
             OrderItems orderItems = new OrderItems();
             Long itemId = menu.getId();
             Optional<OrderItemRequest> quantity = itemsList.stream().filter(findId -> findId.getItemId().equals(itemId)).findFirst();
             Integer quantityValue = quantity.get().getQuantity();
             orderItems.setQuantity(quantityValue);
-            Float basePrice = Float.parseFloat(menu.getBasePrice());
+            Double basePrice = menu.getBasePrice();
             subtotalPrice = subtotalPrice+(basePrice*quantityValue);
             orderItems.setBasePrice(basePrice);
             orderItems.setItemId(menu.getId());
             orderItems.setItemName(menu.getName());
             orderItems.setDescription(menu.getDescription());
             orderItems.setCreatedAt(LocalDateTime.now().toString());
-            orderItems.setTax((float) (Float.parseFloat(menu.getBasePrice()) * 0.05));
+            orderItems.setTax(menu.getBasePrice() * 0.05);
+            orderItems.setVeg(menu.getIsVegeterian());
             orderItemsList.add(orderItems);
+
+        }
+        for(OrderItems item : orderItemsList ){
+            logger.info("item is added {}",item.toString());
         }
         Orders orders = new Orders();
         orders.setBerth(orderRequestBody.getBerth());
@@ -106,16 +112,26 @@ public class OrderServiceImp implements OrderService{
         orders.setPaymentType(orderRequestBody.getPaymentType());
         orders.setDeliveryCharge(orderRequestBody.getDeliveryCharge());
         orders.setTotalAmount(subtotalPrice);
-        orders.setGst((float) (subtotalPrice * 0.05));
-        orders.setPayable_amount((float) (subtotalPrice + (subtotalPrice*0.05) + orderRequestBody.getDeliveryCharge()));
+        orders.setGst(subtotalPrice * 0.05);
+        logger.info("run here");
+        logger.info("subtotal is {}",subtotalPrice);
+        logger.info("tax is  {}", (subtotalPrice * 0.05));
+        double deliveryCharges = 0;
+        if(orderRequestBody.getDeliveryCharge().isNaN()){
+            deliveryCharges = orderRequestBody.getDeliveryCharge();
+        }
+        logger.info("delivery charge is {}",deliveryCharges);
+        logger.info("total amount is  {}", (subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
+        orders.setPayable_amount((subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
+        logger.info("run here also");
         Orders saveOrder = orderRepository.saveAndFlush(orders);
+        logger.info("order is saved {}",saveOrder);
         for(OrderItems orderItems : orderItemsList){
             orderItems.setOrderId(String.valueOf(saveOrder.getId()));
         }
         List<OrderItems> orderItems1 = orderItemsRepository.saveAllAndFlush(orderItemsList);
         Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
         Object customer   = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
-
         OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(),saveOrder.getTotalAmount(),saveOrder.getGst(),saveOrder.getDeliveryCharge(),
                 saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
                 saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),

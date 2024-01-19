@@ -211,67 +211,69 @@ public class OutletServiceImp implements OutletService{
     @Override
     public ResponseEntity<ResponseDTO> CreateNewMenu(Long outletId,CreateMenu createMenu) {
         Optional<Outlet> outletDetails = outletRepo.findById(outletId);
-        if(outletRepo.findById(outletId).isPresent()){
-            BigDecimal basePrice = new BigDecimal(createMenu.getBasePrice());
-            BigDecimal tax = new BigDecimal(createMenu.getTax());
-            BigDecimal sellingPrice = new BigDecimal(createMenu.getSellingPrice());
-            BigDecimal calculatedTax = basePrice.multiply(new BigDecimal("0.05"));
-            BigDecimal calculatedSellingPrice = basePrice.add(tax);
-            if (calculatedTax.compareTo(tax) == 0 && calculatedSellingPrice.compareTo(sellingPrice) == 0) {
-//            if(((Float.parseFloat(createMenu.getBasePrice())) * 0.05) == Float.parseFloat(createMenu.getTax())){
-//                if(((Float.parseFloat(createMenu.getBasePrice()) + Float.parseFloat(createMenu.getTax()))
-//                        == Float.parseFloat(createMenu.getSellingPrice()))){
-                    Menu menu = new Menu();
-                    String aggMenuId = String.valueOf((int) (Math.random() * 90000) + 10000);
-                    menu.setIrctcMenuId(aggMenuId);
-                    menu.setCreatedAt(LocalDateTime.now().toString());
-                    menu.setActive(false);
-                    menu.setOutletId(outletId.toString());
-                    menu.setName(createMenu.getName());
-                    menu.setBasePrice(createMenu.getBasePrice());
-                    menu.setTax(createMenu.getTax());
-                    menu.setSellingPrice(createMenu.getSellingPrice());
-                    menu.setImage(createMenu.getImage());
-                    menu.setDescription(createMenu.getDescription());
-                    menu.setFoodType(createMenu.getFoodType());
-                    menu.setCuisine(createMenu.getCuisine());
-                    menu.setTags(createMenu.getTags());
-                    menu.setBulkOnly(createMenu.getBulkOnly());
-                    menu.setIsVegeterian(createMenu.getIsVegeterian());
-                    menu.setCustomisations(createMenu.getCustomisations());
-                    Outlet outlet = outletDetails.get();
-                    menu.setOpeningTime(outlet.getOpeningTime());
-                    menu.setClosingTime(outlet.getClosingTime());
-                    Menu m = menuRepo.saveAndFlush(menu);
-
-                    MenuResponse menuResponse = new MenuResponse(m.getId(), m.getName(), m.getDescription(),
-                            m.getBasePrice(), m.getTax(), m.getSellingPrice(), m.getFoodType(), m.getCuisine(), m.getTags(),
-                            m.getBulkOnly(), m.getIsVegeterian(), m.getImage(), m.getCustomisations(), m.getOpeningTime(),
-                            m.getClosingTime(), m.getCreatedAt(), m.getUpdatedAt(), m.getActive());
-
-                    logger.info("menu res {}",menuResponse);
-
-                    return new ResponseEntity<>(new ResponseDTO<>("Success", null, menuResponse), HttpStatus.CREATED);
-                }else{
-                    return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect tax or selling price price", null), HttpStatus.BAD_REQUEST);
-                }
-//            }else{
-//                return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect tax value", null), HttpStatus.BAD_REQUEST);
-//            }
-
-        }else {
+        if (!outletRepo.findById(outletId).isPresent()) {
             return new ResponseEntity<>(new ResponseDTO<>("failure", "Outlet is not Present", null), HttpStatus.BAD_REQUEST);
         }
+        BigDecimal basePrice = new BigDecimal(createMenu.getBasePrice());
+        BigDecimal tax = new BigDecimal(createMenu.getTax());
+        BigDecimal sellingPrice = new BigDecimal(createMenu.getSellingPrice());
+        BigDecimal calculatedTax = basePrice.multiply(new BigDecimal("0.05"));
+        BigDecimal calculatedSellingPrice = basePrice.add(tax);
+        if (!(calculatedTax.compareTo(tax) == 0 && calculatedSellingPrice.compareTo(sellingPrice) == 0)) {
+            return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect tax or selling price price", null), HttpStatus.BAD_REQUEST);
+        }
+        Menu menu = new Menu();
+        String aggMenuId = String.valueOf((int) (Math.random() * 90000) + 10000);
+        menu.setIrctcMenuId(aggMenuId);
+        menu.setCreatedAt(LocalDateTime.now().toString());
+        menu.setActive(false);
+        menu.setOutletId(outletId.toString());
+        menu.setName(createMenu.getName());
+        menu.setBasePrice(createMenu.getBasePrice());
+        menu.setTax(createMenu.getTax());
+        menu.setSellingPrice(createMenu.getSellingPrice());
+        menu.setImage(createMenu.getImage());
+        menu.setDescription(createMenu.getDescription());
+        menu.setFoodType(createMenu.getFoodType());
+        menu.setCuisine(createMenu.getCuisine());
+        menu.setTags(createMenu.getTags());
+        menu.setBulkOnly(createMenu.getBulkOnly());
+        menu.setIsVegeterian(createMenu.getIsVegeterian());
+        menu.setCustomisations(createMenu.getCustomisations());
+        Outlet outlet = outletDetails.get();
+        menu.setOpeningTime(outlet.getOpeningTime());
+        menu.setClosingTime(outlet.getClosingTime());
+        Menu m = menuRepo.saveAndFlush(menu);
+
+        MenuResponse menuResponse = new MenuResponse(m.getId(), m.getName(), m.getDescription(),
+                m.getBasePrice(), m.getTax(), m.getSellingPrice(), m.getFoodType(), m.getCuisine(), m.getTags(),
+                m.getBulkOnly(), m.getIsVegeterian(), m.getImage(), m.getCustomisations(), m.getOpeningTime(),
+                m.getClosingTime(), m.getCreatedAt(), m.getUpdatedAt(), m.getActive());
+
+        logger.info("menu res {}", menuResponse);
+
+        return new ResponseEntity<>(new ResponseDTO<>("Success", null, menuResponse), HttpStatus.CREATED);
     }
+
 
     @Override
     public ResponseEntity<ResponseDTO> UpdateMenu(CreateMenu updateMenu, Long outletId, Long menuId) {
         Optional<Outlet> outletDetails = outletRepo.findById(outletId);
-        if(outletDetails.isPresent()){
+        if(outletDetails.isEmpty()) {
+            return new ResponseEntity<>(new ResponseDTO("failure","Outlet is not found",null), HttpStatus.BAD_REQUEST);
+        }
             Optional<Menu> menuDetails = menuRepo.findById(menuId);
-            if(menuDetails.isPresent()){
-                if((Float.parseFloat(updateMenu.getBasePrice()) * 0.05) == Float.parseFloat(updateMenu.getTax())){
-                    if((Float.parseFloat(updateMenu.getBasePrice()) + Float.parseFloat(updateMenu.getTax())) == Float.parseFloat(updateMenu.getSellingPrice())){
+            if(menuDetails.isEmpty()) {
+                return new ResponseEntity<>(new ResponseDTO("failure","Menu is not found",null), HttpStatus.BAD_REQUEST);
+            }
+            BigDecimal basePrice = new BigDecimal(updateMenu.getBasePrice());
+            BigDecimal tax = new BigDecimal(updateMenu.getTax());
+            BigDecimal sellingPrice = new BigDecimal(updateMenu.getSellingPrice());
+            BigDecimal calculatedTax = basePrice.multiply(new BigDecimal("0.05"));
+            BigDecimal calculatedSellingPrice = basePrice.add(tax);
+            if(!(calculatedTax.compareTo(tax) == 0 && calculatedSellingPrice.compareTo(sellingPrice) == 0)) {
+                return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect tax or selling price price", null), HttpStatus.BAD_REQUEST);
+            }
                         Menu menu = menuDetails.get();
                         menu.setUpdatedAt(LocalDateTime.now().toString());
                         menu.setName(updateMenu.getName());
@@ -289,11 +291,17 @@ public class OutletServiceImp implements OutletService{
                         Outlet outlet = outletDetails.get();
                         menu.setOpeningTime(outlet.getOpeningTime());
                         menu.setClosingTime(outlet.getClosingTime());
+                        logger.info("item added, {}",menu);
                         Menu m = menuRepo.save(menu);
 
+                        logger.info("item added success, {}", m);
+
                         Long outletId2 = Long.parseLong(m.getOutletId());
+                        logger.info("outlet i {}",outletId2);
                         Optional<Outlet> outlet1 = outletRepo.findById(outletId2);
+                        logger.info("outlet response {}",outlet1);
                         Outlet o = outlet1.get();
+                        logger.info("id is, {}",o);
                         String stationCode = o.getStationCode();
                         String irctcOutletId = o.getIrctcOutletId();
 
@@ -320,6 +328,7 @@ public class OutletServiceImp implements OutletService{
                             menuPushList.add(pushData);
                         }
                         MenuPushToIRCTC menuPushToIRCTC = new MenuPushToIRCTC(menuPushList);
+                        logger.info("item data push, {}",menuPushToIRCTC);
 
                         HttpHeaders httpHeaders = new HttpHeaders();
                         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -333,19 +342,13 @@ public class OutletServiceImp implements OutletService{
 
                         logger.info("push data : {}",response);
                         return new ResponseEntity<>(new ResponseDTO("success",null,menu),HttpStatus.OK);
-                    }else{
-                        return new ResponseEntity<>(new ResponseDTO("failure","Incorrect Selling price",null), HttpStatus.BAD_REQUEST);
+//                    else{
+//                        return new ResponseEntity<>(new ResponseDTO("failure","Incorrect Selling price",null), HttpStatus.BAD_REQUEST);
                     }
-                }else{
-                    return new ResponseEntity<>(new ResponseDTO("failure","Incorrect Tax value",null), HttpStatus.BAD_REQUEST);
-                }
-            }else{
-                return new ResponseEntity<>(new ResponseDTO("failure","Menu is not found",null), HttpStatus.BAD_REQUEST);
-            }
-        }else{
-            return new ResponseEntity<>(new ResponseDTO("failure","Outlet is not found",null), HttpStatus.BAD_REQUEST);
-        }
-    }
+//                }else{
+//                    return new ResponseEntity<>(new ResponseDTO("failure","Incorrect Tax value",null), HttpStatus.BAD_REQUEST);
+//
+
 
 
     @Override

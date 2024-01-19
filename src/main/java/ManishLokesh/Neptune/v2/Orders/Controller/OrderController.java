@@ -38,7 +38,12 @@ public class OrderController {
     public ResponseEntity<ResponseDTO> getOrderDetails(@PathVariable Long orderId,@RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
         String token = auth.replace("Bearer","");
         if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
-            return this.service.getOrder(orderId);
+            try{
+//                Thread.sleep(5000);
+                return this.service.getOrder(orderId);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
         return new ResponseEntity<>(new ResponseDTO<>("failure", "Not authorize to Access", null), HttpStatus.UNAUTHORIZED);
     }

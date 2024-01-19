@@ -6,7 +6,7 @@ import javax.persistence.*;
 @Table(name = "outlets")
 public class Outlet {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String createdAt;
     private String updatedAt;
@@ -15,7 +15,7 @@ public class Outlet {
     private Integer orderTiming;
     private String openingTime;
     private String closingTime;
-    private Integer deliveryCost;
+    private Double deliveryCost;
     private String address;
     private String city;
     private String state;
@@ -106,11 +106,11 @@ public class Outlet {
         this.closingTime = closingTime;
     }
 
-    public Integer getDeliveryCost() {
+    public Double getDeliveryCost() {
         return deliveryCost;
     }
 
-    public void setDeliveryCost(Integer deliveryCost) {
+    public void setDeliveryCost(Double deliveryCost) {
         this.deliveryCost = deliveryCost;
     }
 
