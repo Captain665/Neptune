@@ -142,10 +142,15 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> getOrder(Long orderId) {
+    public ResponseEntity<ResponseDTO> getOrder(Long orderId, Long customerId) {
         Optional<Orders> orders = orderRepository.findById(orderId);
-        if(!orders.isPresent()) {
-            return new ResponseEntity<>(new ResponseDTO<>("failure","Invalid order Id",null),
+        Long customerDetail = Long.parseLong(orders.get().getCustomerId());
+        if(!customerDetail.equals(customerId)){
+            return new ResponseEntity<>(new ResponseDTO<>("failure","Not Authorize to Access",null),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if(orders.isEmpty()) {
+            return new ResponseEntity<>(new ResponseDTO<>("failure","Incorrect order Id",null),
                     HttpStatus.BAD_REQUEST);
         }
             Orders saveOrder = orders.get();
@@ -164,9 +169,10 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> getAllOrder() {
-        List<Orders> ordersList = orderRepository.findAll();
-        List<OrderResponseBody> orderResponseBodies = new ArrayList<>();
+    public ResponseEntity<ResponseDTO> getAllOrder(Long customerId) {
+//        List<Orders> ordersList = orderRepository.findAll();
+        List<Orders> ordersList = orderRepository.findByCustomerId(String.valueOf(customerId));
+         List<OrderResponseBody> orderResponseBodies = new ArrayList<>();
         for(Orders orders :ordersList){
             OrderResponseBody orderBody = new OrderResponseBody();
             orderBody.setId(orders.getId());
@@ -192,6 +198,8 @@ public class OrderServiceImp implements OrderService{
             orderBody.setDeliveryDate(orders.getDeliveryDate());
             List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orders.getId()));
             Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders.getOutletId())));
+            Optional<Customer> customerDetails = custLoginRepo.findById(customerId);
+            orderBody.setCustomerDetail(customerDetails);
             orderBody.setOutlets(outlet);
             orderBody.setOrderItems(orderItemsList);
             orderResponseBodies.add(orderBody);

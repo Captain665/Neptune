@@ -9,9 +9,9 @@ import org.springframework.http.ResponseEntity;
 public interface OrderService {
     public ResponseEntity<ResponseDTO> addOrder(OrderRequestBody orderRequestBody);
 
-    public ResponseEntity<ResponseDTO> getOrder(Long orderId);
+    public ResponseEntity<ResponseDTO> getOrder(Long orderId, Long customerId);
 
-    public ResponseEntity<ResponseDTO> getAllOrder();
+    public ResponseEntity<ResponseDTO> getAllOrder(Long customerId);
     public ResponseEntity<ResponseDTO> updateStatus(OrderStatusBody orderStatusBody,Long orderId);
 
 }

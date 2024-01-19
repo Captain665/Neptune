@@ -39,8 +39,8 @@ public class OrderController {
         String token = auth.replace("Bearer","");
         if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
             try{
-//                Thread.sleep(5000);
-                return this.service.getOrder(orderId);
+                Long customerId = jwtUtil.validateId(token);
+                return this.service.getOrder(orderId,customerId);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -52,7 +52,8 @@ public class OrderController {
     public ResponseEntity<ResponseDTO> getAllOrders(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
         String token = auth.replace("Bearer","");
         if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
-            return this.service.getAllOrder();
+            Long customerId = jwtUtil.validateId(token);
+            return this.service.getAllOrder(customerId);
         }
         return new ResponseEntity<>(new ResponseDTO<>("failure", "Not authorize to Access", null), HttpStatus.UNAUTHORIZED);
     }
