@@ -25,7 +25,7 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS512,SECRET_KEY)
                 .compact();
     }
-
+    
 
     public Claims extractTokenDetails(String token){
          return Jwts.parser()

@@ -3,6 +3,8 @@ package ManishLokesh.Neptune.v2.Menu.Controller;
 import ManishLokesh.Neptune.AuthController.JwtUtil;
 import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
 import ManishLokesh.Neptune.v2.Menu.Service.GetMenuService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,8 +24,12 @@ public class GetMenuController {
     @Autowired
     public JwtUtil jwtUtil;
 
+    public Logger logger = LoggerFactory.getLogger("app.v2.outlet.menu");
+
     @GetMapping("api/v2/outlet/{outlet_Id}/menu")
     public ResponseEntity<ResponseDTO> getMenu(@PathVariable("outlet_Id") String outletId) {
+        logger.info("menu calling");
+        logger.info("outlet Id {}",outletId);
             return this.service.getActiveMenu(outletId);
 
     }

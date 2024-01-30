@@ -182,7 +182,6 @@ public class OrderServiceImp implements OrderService{
             orderBody.setStationName(orders.getStationName());
             orderBody.setCoach(orders.getCoach());
             orderBody.setBerth(orders.getBerth());
-            orderBody.getDeliveryDate(orders.getDeliveryDate());
             orderBody.setBookingDate(orders.getBookingDate());
             orderBody.setOutletId(orders.getOutletId());
             orderBody.setCreatedAt(orders.getCreatedAt());

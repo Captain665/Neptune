@@ -75,8 +75,12 @@ public class OrderResponseBody {
         this.customerDetail = customerDetail;
     }
 
-    public String getDeliveryDate(String deliveryDate) {
-        return this.deliveryDate;
+    public String getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(String deliveryDate) {
+        this.deliveryDate = deliveryDate;
     }
 
     public Long getId() {
@@ -133,11 +137,6 @@ public class OrderResponseBody {
 
     public void setBerth(String berth) {
         this.berth = berth;
-    }
-
-
-    public void setDeliveryDate(String deliveryDate) {
-        this.deliveryDate = deliveryDate;
     }
 
     public String getBookingDate() {

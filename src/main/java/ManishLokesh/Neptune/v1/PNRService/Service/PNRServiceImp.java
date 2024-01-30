@@ -66,7 +66,7 @@ public class PNRServiceImp implements PNRservice{
             }
         }catch (HttpClientErrorException e){
             logger.info("response :- {}",response);
-            return new ResponseEntity<>(new ResponseDTO<>("faliure","IRCTC PNR api throwing error",response),
+            return new ResponseEntity<>(new ResponseDTO<>("failure","Something Went Wrong, Please try again later",response),
                     HttpStatus.BAD_REQUEST
             );
         }
