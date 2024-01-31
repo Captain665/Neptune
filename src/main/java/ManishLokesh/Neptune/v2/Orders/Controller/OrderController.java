@@ -29,7 +29,13 @@ public class OrderController {
     public ResponseEntity<ResponseDTO> createOrder(@RequestBody OrderRequestBody orderRequestBody, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
         String token = auth.replace("Bearer","");
         if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
+            try{
+                Thread.sleep(2000);
                 return this.service.addOrder(orderRequestBody);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
         }
         return new ResponseEntity<>(new ResponseDTO<>("failure", "Not authorize to Access", null), HttpStatus.UNAUTHORIZED);
     }
@@ -39,6 +45,7 @@ public class OrderController {
         String token = auth.replace("Bearer","");
         if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
             try{
+                Thread.sleep(2000);
                 Long customerId = jwtUtil.validateId(token);
                 return this.service.getOrder(orderId,customerId);
             }catch (Exception e){
@@ -52,8 +59,14 @@ public class OrderController {
     public ResponseEntity<ResponseDTO> getAllOrders(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
         String token = auth.replace("Bearer","");
         if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
-            Long customerId = jwtUtil.validateId(token);
-            return this.service.getAllOrder(customerId);
+            try{
+                Thread.sleep(2000);
+                Long customerId = jwtUtil.validateId(token);
+                return this.service.getAllOrder(customerId);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
         }
         return new ResponseEntity<>(new ResponseDTO<>("failure", "Not authorize to Access", null), HttpStatus.UNAUTHORIZED);
     }
@@ -62,7 +75,13 @@ public class OrderController {
     public ResponseEntity<ResponseDTO>statusUpdate(@RequestBody OrderStatusBody orderStatusBody, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth, @PathVariable String orderId){
         String token = auth.replace("Bearer","");
         if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
-            return this.service.updateStatus(orderStatusBody,Long.parseLong(orderId));
+            try{
+                Thread.sleep(2000);
+                return this.service.updateStatus(orderStatusBody,Long.parseLong(orderId));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
         }
         return new ResponseEntity<>(new ResponseDTO<>("failure", "Not authorize to Access", null), HttpStatus.UNAUTHORIZED);
 
