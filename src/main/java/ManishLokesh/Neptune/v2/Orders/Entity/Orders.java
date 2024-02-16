@@ -29,6 +29,8 @@ public class Orders {
     private Double gst;
     private Double payable_amount;
 
+    private Long IrctcOrderId;
+
 
     public Long getId() {
         return id;
@@ -196,5 +198,13 @@ public class Orders {
 
     public void setPayable_amount(Double payable_amount) {
         this.payable_amount = payable_amount;
+    }
+
+    public Long getIrctcOrderId() {
+        return IrctcOrderId;
+    }
+
+    public void setIrctcOrderId(Long irctcOrderId) {
+        IrctcOrderId = irctcOrderId;
     }
 }

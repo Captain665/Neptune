@@ -22,7 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,7 @@ public class OrderServiceImp implements OrderService{
     public OutletRepo outletRepo;
 
     public Logger logger = LoggerFactory.getLogger("app.v2.order.service");
+    private OrderPushService orderPushService;
 
     @Autowired
     public CustLoginRepo custLoginRepo;
@@ -124,7 +126,10 @@ public class OrderServiceImp implements OrderService{
         logger.info("total amount is  {}", (subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
         orders.setPayable_amount((subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
         logger.info("run here also");
+
         Orders saveOrder = orderRepository.saveAndFlush(orders);
+
+
         logger.info("order is saved {}",saveOrder);
         for(OrderItems orderItems : orderItemsList){
             orderItems.setOrderId(String.valueOf(saveOrder.getId()));
@@ -136,6 +141,8 @@ public class OrderServiceImp implements OrderService{
                 saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
                 saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
                 saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(),outlet,customer);
+        String response = String.valueOf(supplyAsync(() -> orderPushService.PushOrder(saveOrder)));
+        logger.info("response from irctc api {}",orderResponseBody);
         return new ResponseEntity<>(
                 new ResponseDTO("success", null, orderResponseBody),
                 HttpStatus.CREATED);

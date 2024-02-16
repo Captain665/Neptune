@@ -1,5 +1,9 @@
 package ManishLokesh.Neptune.v2.Orders.ResponseBody;
 
+import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderPushToIRCTC.OrderItemsInfo;
+
+import java.util.List;
+
 public class OrderResponseBody {
     private Long id;
     private String trainName;
@@ -236,7 +240,7 @@ public class OrderResponseBody {
         this.payable_amount = payable_amount;
     }
 
-    public Object getOrderItems() {
+    public List<OrderItemsInfo> getOrderItems() {
         return orderItems;
     }
 

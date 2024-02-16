@@ -12,7 +12,6 @@ import ManishLokesh.Neptune.v1.Users.RequestBody.OtpValidateRequestBody;
 import ManishLokesh.Neptune.v1.Users.RequestBody.SignupRequestBody;
 import ManishLokesh.Neptune.v1.Users.RespondeBody.LoginResponse;
 import ManishLokesh.Neptune.v1.Users.RespondeBody.OtpValidateResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
