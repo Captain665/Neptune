@@ -141,7 +141,7 @@ public class OrderServiceImp implements OrderService{
                 saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
                 saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
                 saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(),outlet,customer);
-        String response = String.valueOf(supplyAsync(() -> orderPushService.PushOrder(saveOrder)));
+        String response = String.valueOf(supplyAsync(() -> orderPushService.PushOrder(orderResponseBody)));
         logger.info("response from irctc api {}",orderResponseBody);
         return new ResponseEntity<>(
                 new ResponseDTO("success", null, orderResponseBody),
