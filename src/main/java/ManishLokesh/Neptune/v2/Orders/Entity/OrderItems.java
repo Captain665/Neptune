@@ -19,6 +19,8 @@ public class OrderItems {
     private String createdAt;
     private Boolean isVeg;
 
+    private Double sellingPrice;
+
     public Boolean getVeg() {
         return isVeg;
     }
@@ -97,5 +99,13 @@ public class OrderItems {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Double getSellingPrice() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(Double sellingPrice) {
+        this.sellingPrice = sellingPrice;
     }
 }

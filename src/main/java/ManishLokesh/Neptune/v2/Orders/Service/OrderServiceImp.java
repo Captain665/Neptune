@@ -10,6 +10,10 @@ import ManishLokesh.Neptune.v2.Orders.Entity.Orders;
 import ManishLokesh.Neptune.v2.Orders.Repository.OrderItemsRepository;
 import ManishLokesh.Neptune.v2.Orders.Repository.OrderRepository;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderItemRequest;
+import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderPushToIRCTC.CustomerInfo;
+import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderPushToIRCTC.OrderItemsInfo;
+import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderPushToIRCTC.OrderPushToIRCTC;
+import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderPushToIRCTC.OutletInfo;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderRequestBody;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
 import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderResponseBody;
@@ -18,11 +22,11 @@ import ManishLokesh.Neptune.v2.customer.Repository.CustLoginRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,10 +51,23 @@ public class OrderServiceImp implements OrderService{
     public OutletRepo outletRepo;
 
     public Logger logger = LoggerFactory.getLogger("app.v2.order.service");
-    private OrderPushService orderPushService;
+
+//    private OrderPushService orderPushService;
 
     @Autowired
     public CustLoginRepo custLoginRepo;
+    private RestTemplate restTemplate;
+    private final String EcateUrl;
+    private final String AuthToken;
+
+    @Autowired
+    public OrderServiceImp(RestTemplate restTemplate, @Value("${E-catering.stage.url}") String ecateUrl,
+                            @Value("${E-catering.auth.token}") String authToken){
+        this.restTemplate = restTemplate;
+        this.EcateUrl = ecateUrl;
+        this.AuthToken = authToken;
+
+    }
 
     @Override
     public ResponseEntity<ResponseDTO> addOrder(OrderRequestBody orderRequestBody) {
@@ -89,7 +106,9 @@ public class OrderServiceImp implements OrderService{
             orderItems.setCreatedAt(LocalDateTime.now().toString());
             orderItems.setTax(menu.getBasePrice() * 0.05);
             orderItems.setVeg(menu.getIsVegeterian());
+            orderItems.setSellingPrice(menu.getSellingPrice());
             orderItemsList.add(orderItems);
+
 
         }
         for(OrderItems item : orderItemsList ){
@@ -129,8 +148,89 @@ public class OrderServiceImp implements OrderService{
 
         Orders saveOrder = orderRepository.saveAndFlush(orders);
 
+//        runAsync(() -> orderPushService.PushOrder(saveOrder));
 
-        logger.info("order is saved {}",saveOrder);
+        logger.info("order is push to irctc");
+        logger.info("request body " + saveOrder);
+
+        Long customerId = Long.valueOf(saveOrder.getCustomerId());
+        Optional<Customer> customerDa = custLoginRepo.findById(customerId);
+        CustomerInfo customerInfo = new CustomerInfo();
+        customerInfo.setFullName(customerDa.get().getFullName());
+        customerInfo.setEmail(customerDa.get().getEmailId());
+        customerInfo.setMobile(customerDa.get().getMobileNumber());
+
+        logger.info("customer id" + customerId);
+        logger.info("customer details " + customerInfo);
+
+        Long outletId = Long.valueOf(saveOrder.getOutletId());
+        Optional<Outlet> outletData = outletRepo.findById(outletId);
+        OutletInfo outletInfo = new OutletInfo();
+        outletInfo.setId(outletData.get().getId());
+        outletInfo.setName(outletData.get().getOutletName());
+        outletInfo.setAddress(outletData.get().getAddress());
+        outletInfo.setCity(outletData.get().getCity());
+        outletInfo.setState(outletData.get().getState());
+        outletInfo.setPinCode("110001");
+        outletInfo.setContactNumbers(outletData.get().getMobileNo());
+        outletInfo.setRelationshipManagerName(outletData.get().getCompanyName());
+        outletInfo.setRelationshipManagerEmail(outletData.get().getEmailId());
+        outletInfo.setRelationshipManagerPhone(outletData.get().getMobileNo());
+        outletInfo.setFssaiNumber(outletData.get().getFssaiNo());
+        outletInfo.setFssaiCutOffDate(outletData.get().getFssaiValidUpto());
+
+        logger.info("outlet id" + outletId);
+        logger.info("outlet details " + outletInfo);
+
+        String orderId = String.valueOf(saveOrder.getId());
+        List<OrderItemsInfo> orderItemInfoList = new ArrayList<>();
+        List<OrderItems> orderItemsData = orderItemsRepository.findByOrderId(orderId);
+        for (OrderItems orderItems1 : orderItemsData){
+            logger.info("runing........");
+            OrderItemsInfo orderItemsInfo = new OrderItemsInfo();
+            orderItemsInfo.setItemId(orderItems1.getItemId());
+            orderItemsInfo.setItemName(orderItems1.getItemName());
+            orderItemsInfo.setDescription(orderItems1.getDescription());
+            orderItemsInfo.setBasePrice(orderItems1.getBasePrice());
+            orderItemsInfo.setTaxRate(orderItems1.getTax());
+            orderItemsInfo.setSellingPrice(orderItems1.getSellingPrice());
+            orderItemsInfo.setVegetarian(orderItems1.getVeg());
+            orderItemsInfo.setQuantity(orderItems1.getQuantity());
+            orderItemsInfo.setOption("");
+            orderItemInfoList.add(orderItemsInfo);
+            logger.info("order items is added");
+        }
+        logger.info("order id " + orderId);
+        logger.info("order items info " + orderItemInfoList);
+
+        OrderPushToIRCTC orderPush = new OrderPushToIRCTC(saveOrder.getId(),"", "",customerInfo,
+                outletInfo, saveOrder.getBookingDate(),saveOrder.getDeliveryDate(),
+                saveOrder.getPnr(),saveOrder.getTrainName(),saveOrder.getTrainNo(),
+                saveOrder.getStationCode(),saveOrder.getStationName(),saveOrder.getCoach(),
+                saveOrder.getBerth(), saveOrder.getTotalAmount(),saveOrder.getDeliveryCharge(),
+                saveOrder.getDeliveryCharge(),0.0,saveOrder.getPayable_amount(),saveOrder.getPaymentType(), orderItemInfoList);
+
+
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        logger.info("client error");
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        logger.info("type error ");
+        httpHeaders.add("Authorization",AuthToken);
+        logger.info("run here .... ");
+        logger.info("auth token {} ", AuthToken);
+        logger.info("http header {}", httpHeaders);
+        logger.info("ecat url {}", EcateUrl);
+        Object response = this.restTemplate.exchange(
+                EcateUrl+"api/v1/order/vendor",
+                HttpMethod.POST,
+                new HttpEntity<>(orderPush,httpHeaders),
+                Object.class
+        ).getBody();
+        logger.info("response {}",response);
+        logger.info("order push is completed");
+
+        logger.info("order is saved " + saveOrder);
         for(OrderItems orderItems : orderItemsList){
             orderItems.setOrderId(String.valueOf(saveOrder.getId()));
         }
@@ -141,8 +241,8 @@ public class OrderServiceImp implements OrderService{
                 saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
                 saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
                 saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(),outlet,customer);
-        String response = String.valueOf(supplyAsync(() -> orderPushService.PushOrder(orderResponseBody)));
-        logger.info("response from irctc api {}",orderResponseBody);
+
+
         return new ResponseEntity<>(
                 new ResponseDTO("success", null, orderResponseBody),
                 HttpStatus.CREATED);
