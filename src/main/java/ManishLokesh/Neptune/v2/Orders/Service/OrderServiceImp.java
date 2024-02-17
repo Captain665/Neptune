@@ -19,16 +19,23 @@ import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
 import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderResponseBody;
 import ManishLokesh.Neptune.v2.customer.Entity.Customer;
 import ManishLokesh.Neptune.v2.customer.Repository.CustLoginRepo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,12 +67,15 @@ public class OrderServiceImp implements OrderService{
     private final String EcateUrl;
     private final String AuthToken;
 
+    private final ObjectMapper objectMapper;
+
     @Autowired
     public OrderServiceImp(RestTemplate restTemplate, @Value("${E-catering.stage.url}") String ecateUrl,
-                            @Value("${E-catering.auth.token}") String authToken){
+                            @Value("${E-catering.auth.token}") String authToken, ObjectMapper objectMapper){
         this.restTemplate = restTemplate;
         this.EcateUrl = ecateUrl;
         this.AuthToken = authToken;
+        this.objectMapper = objectMapper;
 
     }
 
@@ -119,10 +129,14 @@ public class OrderServiceImp implements OrderService{
         orders.setCoach(orderRequestBody.getCoach());
         orders.setTrainName(orderRequestBody.getTrainName());
         orders.setTrainNo(orderRequestBody.getTrainNo());
+        logger.info("delivery date from request body {}",orderRequestBody.getDeliveryDate());
         orders.setDeliveryDate(orderRequestBody.getDeliveryDate());
         orders.setOrderFrom(orderRequestBody.getOrderFrom());
         orders.setCreatedAt(LocalDateTime.now().toString());
-        orders.setBookingDate(LocalDateTime.now().toString());
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String formatedBookingData = localDateTime.format(formatter);
+        orders.setBookingDate(formatedBookingData);
         orders.setStationName(orderRequestBody.getStationName());
         orders.setStationCode(orderRequestBody.getStationCode());
         orders.setOutletId(orderRequestBody.getOutletId());
@@ -133,7 +147,9 @@ public class OrderServiceImp implements OrderService{
         orders.setPaymentType(orderRequestBody.getPaymentType());
         orders.setDeliveryCharge(orderRequestBody.getDeliveryCharge());
         orders.setTotalAmount(subtotalPrice);
-        orders.setGst(subtotalPrice * 0.05);
+        DecimalFormat df = new DecimalFormat("#.##");
+        Double gst = subtotalPrice * 0.05;
+        orders.setGst(Double.valueOf(df.format(gst)));
         logger.info("run here");
         logger.info("subtotal is {}",subtotalPrice);
         logger.info("tax is  {}", (subtotalPrice * 0.05));
@@ -144,11 +160,22 @@ public class OrderServiceImp implements OrderService{
         logger.info("delivery charge is {}",deliveryCharges);
         logger.info("total amount is  {}", (subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
         orders.setPayable_amount((subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
-        logger.info("run here also");
 
         Orders saveOrder = orderRepository.saveAndFlush(orders);
 
-//        runAsync(() -> orderPushService.PushOrder(saveOrder));
+
+
+        logger.info("order is saved " + saveOrder);
+        for(OrderItems orderItems : orderItemsList){
+            orderItems.setOrderId(String.valueOf(saveOrder.getId()));
+        }
+        List<OrderItems> orderItemsData = orderItemsRepository.saveAllAndFlush(orderItemsList);
+        Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
+        Object customer   = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
+        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(),saveOrder.getTotalAmount(),saveOrder.getGst(),saveOrder.getDeliveryCharge(),
+                saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
+                saveOrder.getOutletId(),orderItemsData,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
+                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(),outlet,customer);
 
         logger.info("order is push to irctc");
         logger.info("request body " + saveOrder);
@@ -161,7 +188,7 @@ public class OrderServiceImp implements OrderService{
         customerInfo.setMobile(customerDa.get().getMobileNumber());
 
         logger.info("customer id" + customerId);
-        logger.info("customer details " + customerInfo);
+        logger.info("customer details  {}", customerInfo);
 
         Long outletId = Long.valueOf(saveOrder.getOutletId());
         Optional<Outlet> outletData = outletRepo.findById(outletId);
@@ -177,16 +204,24 @@ public class OrderServiceImp implements OrderService{
         outletInfo.setRelationshipManagerEmail(outletData.get().getEmailId());
         outletInfo.setRelationshipManagerPhone(outletData.get().getMobileNo());
         outletInfo.setFssaiNumber(outletData.get().getFssaiNo());
-        outletInfo.setFssaiCutOffDate(outletData.get().getFssaiValidUpto());
+        logger.info("fssai number {}",outletData.get().getFssaiNo());
+        outletInfo.setFssaiCutOffDate(outletData.get().getFssaiValidUpto() + " 00:00 IST");
+        logger.info("fssai upto date {}",outletData.get().getFssaiValidUpto() + " 00:00 IST");
+        outletInfo.setGstNumber(outletData.get().getGstNo());
+        logger.info("gst number {}",outletData.get().getGstNo());
 
         logger.info("outlet id" + outletId);
         logger.info("outlet details " + outletInfo);
 
         String orderId = String.valueOf(saveOrder.getId());
+        logger.info("order id is {}",orderId);
         List<OrderItemsInfo> orderItemInfoList = new ArrayList<>();
-        List<OrderItems> orderItemsData = orderItemsRepository.findByOrderId(orderId);
+//        List<OrderItems> orderItemsData = orderItemsRepository.findByOrderId(orderId);
+
+        logger.info("order items data {}",orderItemsData);
         for (OrderItems orderItems1 : orderItemsData){
             logger.info("runing........");
+            logger.info("item id {}",orderItems1.getItemId());
             OrderItemsInfo orderItemsInfo = new OrderItemsInfo();
             orderItemsInfo.setItemId(orderItems1.getItemId());
             orderItemsInfo.setItemName(orderItems1.getItemName());
@@ -202,13 +237,16 @@ public class OrderServiceImp implements OrderService{
         }
         logger.info("order id " + orderId);
         logger.info("order items info " + orderItemInfoList);
+        logger.info("delivery date, {}",saveOrder.getDeliveryDate() + " IST");
+        logger.info("booking date {}", saveOrder.getBookingDate() + " IST");
+
 
         OrderPushToIRCTC orderPush = new OrderPushToIRCTC(saveOrder.getId(),"", "",customerInfo,
-                outletInfo, saveOrder.getBookingDate(),saveOrder.getDeliveryDate(),
+                outletInfo, saveOrder.getBookingDate() +" IST",saveOrder.getDeliveryDate() + " IST",
                 saveOrder.getPnr(),saveOrder.getTrainName(),saveOrder.getTrainNo(),
                 saveOrder.getStationCode(),saveOrder.getStationName(),saveOrder.getCoach(),
                 saveOrder.getBerth(), saveOrder.getTotalAmount(),saveOrder.getDeliveryCharge(),
-                saveOrder.getDeliveryCharge(),0.0,saveOrder.getPayable_amount(),saveOrder.getPaymentType(), orderItemInfoList);
+                saveOrder.getGst(),0.0,saveOrder.getPayable_amount(),saveOrder.getPaymentType(), orderItemInfoList);
 
 
 
@@ -221,26 +259,45 @@ public class OrderServiceImp implements OrderService{
         logger.info("auth token {} ", AuthToken);
         logger.info("http header {}", httpHeaders);
         logger.info("ecat url {}", EcateUrl);
-        Object response = this.restTemplate.exchange(
-                EcateUrl+"api/v1/order/vendor",
-                HttpMethod.POST,
-                new HttpEntity<>(orderPush,httpHeaders),
-                Object.class
-        ).getBody();
-        logger.info("response {}",response);
-        logger.info("order push is completed");
+        try{
+            ResponseEntity<String> response = this.restTemplate.exchange(
+                    EcateUrl+"api/v1/order/vendor",
+                    HttpMethod.POST,
+                    new HttpEntity<>(orderPush,httpHeaders),
+                    String.class
+            );
+            String responseBody = response.getBody();
+            try{
+                if(response.getStatusCode().is2xxSuccessful()){
+                    JsonNode jsonNode = objectMapper.readTree(responseBody);
+                    JsonNode resultObject = jsonNode.get("result");
+                    JsonNode responseOrderId = resultObject.get("id");
+                    JsonNode orderStatus = resultObject.get("status");
+                    Optional<Orders> orders1 = orderRepository.findById(saveOrder.getId());
+                    Long irctcOrderId = Long.parseLong(String.valueOf(responseOrderId));
+                    logger.info("irctc order id is {}", irctcOrderId);
+                    Orders orders2 = orders1.get();
+                    orders2.setIrctcOrderId(irctcOrderId);
+                    String irctcOrderStatus = String.valueOf(orderStatus);
+                    String result = irctcOrderStatus.substring(1, irctcOrderStatus.length() - 1);
+                    logger.info("irctc order status {}", result);
+                    orders2.setStatus(result);
+                    Orders orders3 = orderRepository.save(orders2);
+                }
+            }catch (JsonProcessingException e){
+                return new ResponseEntity<>(new ResponseDTO<>("failure", "JSON processing error", null),
+                        HttpStatus.INTERNAL_SERVER_ERROR);
+            }
 
-        logger.info("order is saved " + saveOrder);
-        for(OrderItems orderItems : orderItemsList){
-            orderItems.setOrderId(String.valueOf(saveOrder.getId()));
+            logger.info("response body {}",response.getBody());
+        }catch (HttpClientErrorException e){
+            logger.info("getting expections");
+            return new ResponseEntity<>(
+                    new ResponseDTO("failure", "something went wrong, please try again later", null),
+                    HttpStatus.BAD_REQUEST);
         }
-        List<OrderItems> orderItems1 = orderItemsRepository.saveAllAndFlush(orderItemsList);
-        Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
-        Object customer   = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
-        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(),saveOrder.getTotalAmount(),saveOrder.getGst(),saveOrder.getDeliveryCharge(),
-                saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
-                saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
-                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(),outlet,customer);
+
+        logger.info("order push is completed");
 
 
         return new ResponseEntity<>(

@@ -28,7 +28,6 @@ public class Orders {
     private Double totalAmount;
     private Double gst;
     private Double payable_amount;
-
     private Long IrctcOrderId;
 
 
