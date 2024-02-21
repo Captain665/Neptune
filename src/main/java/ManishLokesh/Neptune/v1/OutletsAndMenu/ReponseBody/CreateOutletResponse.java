@@ -1,6 +1,8 @@
 package ManishLokesh.Neptune.v1.OutletsAndMenu.ReponseBody;
 
 
+import org.hibernate.mapping.List;
+
 public class CreateOutletResponse <T>{
 
     private Long id;
@@ -27,6 +29,7 @@ public class CreateOutletResponse <T>{
     private String emailId;
     private String mobileNo;
     private String stationCode;
+    private String tags;
 
 
     public CreateOutletResponse(Long id, String outletName, Long minOrderValue, Integer orderTiming, String openingTime,
@@ -34,7 +37,7 @@ public class CreateOutletResponse <T>{
                                 Boolean prepaid, String companyName, String panCard, String gstNo, String fssaiNo,
                                 String fssaiValidUpto, Boolean active,String createdAt, Object outletClosing ,
                                 String updatedAt, String logoImage, String emailId, String mobileNo,
-                                String stationCode){
+                                String stationCode, String tags){
         this.id = id;
         this.outletName = outletName;
         this.minOrderValue = minOrderValue;
@@ -59,6 +62,7 @@ public class CreateOutletResponse <T>{
         this.emailId = emailId;
         this.mobileNo = mobileNo;
         this.stationCode = stationCode;
+        this.tags = tags;
     }
 
 
@@ -255,5 +259,13 @@ public class CreateOutletResponse <T>{
 
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }

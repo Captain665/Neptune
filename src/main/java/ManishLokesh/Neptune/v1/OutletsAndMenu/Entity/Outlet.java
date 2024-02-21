@@ -1,5 +1,7 @@
 package ManishLokesh.Neptune.v1.OutletsAndMenu.Entity;
 
+import org.hibernate.mapping.List;
+
 import javax.persistence.*;
 
 @Entity
@@ -33,6 +35,11 @@ public class Outlet {
     private Integer ratingCount;
     private Double ratingValue;
     private String irctcOutletId;
+    private String tags;
+
+
+
+
 
     public String getIrctcOutletId() {
         return irctcOutletId;
@@ -240,5 +247,13 @@ public class Outlet {
 
     public void setRatingValue(Double ratingValue) {
         this.ratingValue = ratingValue;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }

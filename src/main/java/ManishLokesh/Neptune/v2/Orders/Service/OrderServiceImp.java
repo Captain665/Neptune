@@ -235,8 +235,9 @@ public class OrderServiceImp implements OrderService{
             orderItemInfoList.add(orderItemsInfo);
             logger.info("order items is added");
         }
+
         logger.info("order id " + orderId);
-        logger.info("order items info " + orderItemInfoList);
+        logger.info("order items info [{}]", orderItemInfoList);
         logger.info("delivery date, {}",saveOrder.getDeliveryDate() + " IST");
         logger.info("booking date {}", saveOrder.getBookingDate() + " IST");
 
@@ -292,6 +293,7 @@ public class OrderServiceImp implements OrderService{
             logger.info("response body {}",response.getBody());
         }catch (HttpClientErrorException e){
             logger.info("getting expections");
+            logger.info("error : {}",e.toString());
             return new ResponseEntity<>(
                     new ResponseDTO("failure", "something went wrong, please try again later", null),
                     HttpStatus.BAD_REQUEST);

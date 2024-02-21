@@ -1,5 +1,6 @@
 package ManishLokesh.Neptune.v1.OutletsAndMenu.RequestBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CreateOutlet {
@@ -23,6 +24,7 @@ public class CreateOutlet {
     private String logoImage;
     private String emailId;
     private String mobileNo;
+    private String tags;
 
 
     public CreateOutlet(){
@@ -186,5 +188,13 @@ public class CreateOutlet {
 
     public void setMobileNo(String mobileNo) {
         this.mobileNo = mobileNo;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }

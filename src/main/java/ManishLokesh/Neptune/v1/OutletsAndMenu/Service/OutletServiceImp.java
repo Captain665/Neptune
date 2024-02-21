@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -89,6 +90,8 @@ public class OutletServiceImp implements OutletService{
         String aggOutletId = String.valueOf((int) (Math.random() * 90000) + 10000);
         outlet.setIrctcOutletId(aggOutletId);
         outlet.setCreatedAt(LocalDateTime.now().toString());
+        outlet.setTags(createOutlet.getTags());
+        logger.info("tags {}",createOutlet.getTags());
         Outlet o = outletRepo.saveAndFlush(outlet);
         List<OutletClosingRequest> ClosingRequestList = objectMapper.convertValue(createOutlet.getOutletClosing(), new TypeReference<>() {});
         List<OutletClosing> outletClosingList = new ArrayList<>();
@@ -106,7 +109,7 @@ public class OutletServiceImp implements OutletService{
                 o.getDeliveryCost(),o.getAddress(),o.getCity(),o.getState(),o.getPrepaid(),o.getCompanyName(),
                 o.getPanCard(),o.getGstNo(),o.getFssaiNo(),o.getFssaiValidUpto(),
                 o.getActive(),o.getCreatedAt(),storeClose,o.getUpdatedAt(),o.getLogoImage(),o.getEmailId(),
-                o.getMobileNo(),o.getStationCode());
+                o.getMobileNo(),o.getStationCode(),o.getTags());
 
         return new ResponseEntity<>(new ResponseDTO("success",null,createOutletResponse),
                 HttpStatus.CREATED);
@@ -157,7 +160,7 @@ public class OutletServiceImp implements OutletService{
                     o.getDeliveryCost(),o.getAddress(),o.getCity(),o.getState(),o.getPrepaid(),o.getCompanyName(),
                     o.getPanCard(),o.getGstNo(),o.getFssaiNo(),o.getFssaiValidUpto(),
                     o.getActive(),o.getCreatedAt(),savedClosing,o.getUpdatedAt(),o.getLogoImage(),o.getEmailId(),
-                    o.getMobileNo(),o.getStationCode());
+                    o.getMobileNo(),o.getStationCode(),o.getTags());
 
             List<Outlet> allTheOutlet = outletRepo.findByStationCode(o.getStationCode());
             List<Outlet> activeOutletList = allTheOutlet.stream().filter(Outlet :: getActive).collect(Collectors.toList());
@@ -353,7 +356,10 @@ public class OutletServiceImp implements OutletService{
 
     @Override
     public ResponseEntity<ResponseDTO> ActiveOutlet(Long outletId,Boolean status) {
+        logger.info("outlet Id {}",outletId);
+        logger.info("set status {}",status);
         Optional<Outlet> outletDetails = outletRepo.findById(outletId);
+        logger.info("outlet in db {}",outletDetails);
         if(outletDetails.isPresent()){
             Outlet outlet = outletDetails.get();
             outlet.setActive(status);
@@ -388,18 +394,22 @@ public class OutletServiceImp implements OutletService{
                 pushOutlet.add(outlet2);
             }
             OutletsPushToIRCTC outletsPushToIRCTC = new OutletsPushToIRCTC(pushOutlet);
-            logger.info("testing : {}",pushOutlet);
+            logger.info("outlet data push to irctc : [{}]",pushOutlet);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             httpHeaders.add("Authorization",AuthToken);
             String stationCode = o.getStationCode();
-            Object response = this.restTemplate.exchange(
-                    EcateUrl+"api/v1/vendor/aggregator/outlets/"+stationCode,
-                    HttpMethod.POST,
-                    new HttpEntity<>(outletsPushToIRCTC,httpHeaders),
-                    Object.class
-            ).getBody();
-            logger.info("testing : {}",response);
+            try{
+                String response = this.restTemplate.exchange(
+                        EcateUrl+"api/v1/vendor/aggregator/outlets/"+stationCode,
+                        HttpMethod.POST,
+                        new HttpEntity<>(outletsPushToIRCTC,httpHeaders),
+                        String.class
+                ).getBody();
+                logger.info("testing : {}",response);
+            }catch (HttpServerErrorException e){
+                logger.info("expection error {}" , e.getMessage());
+            }
 
             return new ResponseEntity<>(new ResponseDTO<>("success",null,"Outlet status is Updated Successfully"),
                     HttpStatus.OK);
