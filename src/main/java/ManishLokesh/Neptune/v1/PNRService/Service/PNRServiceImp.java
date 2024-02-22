@@ -38,8 +38,9 @@ public class PNRServiceImp implements PNRservice{
 
     @Override
     public ResponseEntity<ResponseDTO> getPnrDetails(Long pnr) {
+
         logger.info("requested pnr number :- {}",pnr);
-        ArrayList<String> response = new ArrayList<>();
+
         try{
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.set("Authorization",authToken);
@@ -49,9 +50,8 @@ public class PNRServiceImp implements PNRservice{
                     new HttpEntity<>(httpHeaders),
                     String.class
             );
-            response.add(responseEntity.getBody());
             logger.info("response body get from IRCTC server {}",responseEntity.getBody());
-            logger.info("response code {}", responseEntity.getStatusCode());
+
             if(responseEntity.getStatusCode().is2xxSuccessful()){
                 String responseBody = responseEntity.getBody();
                 try {
@@ -65,14 +65,23 @@ public class PNRServiceImp implements PNRservice{
                             HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             }
+            return null;
         }catch (HttpClientErrorException e){
-            logger.info("response :- {}",response);
-            return new ResponseEntity<>(new ResponseDTO<>("failure","Something Went Wrong, Please try again later",response),
+            try {
+                String msg = e.getResponseBodyAsString();
+                JsonNode jsonNode = objectMapper.readTree(msg);
+                JsonNode resultObject = jsonNode.get("message");
+                String errorMsg = resultObject.asText();
+                logger.info("error msg {}", resultObject);
+                return new ResponseEntity<>(new ResponseDTO<>("failure",errorMsg,null),
+                        HttpStatus.BAD_REQUEST);
+            }catch (JsonProcessingException z){
+                logger.info(z.getMessage());
+            }
+            return new ResponseEntity<>(new ResponseDTO<>("failure","Something Went Wrong, Please try again late",null),
                     HttpStatus.BAD_REQUEST
             );
         }
-        return new ResponseEntity<>(new ResponseDTO<>("failure","Something went wrong",null),
-                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -38,8 +38,38 @@ public class Outlet {
     private String tags;
 
 
-
-
+    @Override
+    public String toString() {
+        return "Outlet{" +
+                "id=" + id +
+                ", createdAt='" + createdAt + '\'' +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", outletName='" + outletName + '\'' +
+                ", minOrderValue=" + minOrderValue +
+                ", orderTiming=" + orderTiming +
+                ", openingTime='" + openingTime + '\'' +
+                ", closingTime='" + closingTime + '\'' +
+                ", deliveryCost=" + deliveryCost +
+                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", prepaid=" + prepaid +
+                ", companyName='" + companyName + '\'' +
+                ", panCard='" + panCard + '\'' +
+                ", gstNo='" + gstNo + '\'' +
+                ", fssaiNo='" + fssaiNo + '\'' +
+                ", fssaiValidUpto='" + fssaiValidUpto + '\'' +
+                ", active=" + active +
+                ", logoImage='" + logoImage + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", mobileNo='" + mobileNo + '\'' +
+                ", stationCode='" + stationCode + '\'' +
+                ", ratingCount=" + ratingCount +
+                ", ratingValue=" + ratingValue +
+                ", irctcOutletId='" + irctcOutletId + '\'' +
+                ", tags='" + tags + '\'' +
+                '}';
+    }
 
     public String getIrctcOutletId() {
         return irctcOutletId;

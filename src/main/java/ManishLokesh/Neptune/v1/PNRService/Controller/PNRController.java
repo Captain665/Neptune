@@ -21,15 +21,9 @@ public class PNRController {
     
     @GetMapping("api/v2/pnr/{PNR}") 
     public ResponseEntity<ResponseDTO> getPnrDetails(@PathVariable String PNR){
-        logger.info("request pnr number is {}",PNR);
 
         if(PNR.length() == 10){
-            try{
                 return this.pnRservice.getPnrDetails(Long.parseLong(PNR));
-            }catch (Exception e){
-                return new ResponseEntity<>(new ResponseDTO<>("failure","Something went wrong, Please try after some time",null),
-                        HttpStatus.BAD_REQUEST);
-            }
         }
         return new ResponseEntity<>(new ResponseDTO<>("failure","PNR number Should have 10 digit",null),
                 HttpStatus.BAD_REQUEST);

@@ -28,6 +28,7 @@ public class GetOutletServiceimp implements GetOutletService{
 
         List<Outlet> outletList = outletRepo.findByStationCode(stationCode);
         List<Outlet> activeOutlets = outletList.stream().filter(Outlet::getActive).collect(Collectors.toList());
+        logger.info("outlet data {}", activeOutlets.stream().collect(Collectors.toList()));
         for (Outlet outlet : activeOutlets){
             logger.info("active outlets id {}", outlet.getId());
         }
