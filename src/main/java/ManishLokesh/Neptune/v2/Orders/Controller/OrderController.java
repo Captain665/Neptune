@@ -26,29 +26,23 @@ public class OrderController {
     public JwtUtil jwtUtil;
 
     @PostMapping("/api/v2/create/order")
-    public ResponseEntity<ResponseDTO> createOrder(@RequestBody OrderRequestBody orderRequestBody, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
-        String token = auth.replace("Bearer","");
-        if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
-            try{
-                Thread.sleep(2000);
-                return this.service.addOrder(orderRequestBody);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-            return null;
+    public ResponseEntity<ResponseDTO> createOrder(@RequestBody OrderRequestBody orderRequestBody, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
+        String token = auth.replace("Bearer", "");
+        if (Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")) {
+            return this.service.addOrder(orderRequestBody);
         }
         return new ResponseEntity<>(new ResponseDTO<>("failure", "Not authorize to Access", null), HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping("/api/v2/order/{orderId}")
-    public ResponseEntity<ResponseDTO> getOrderDetails(@PathVariable Long orderId,@RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
-        String token = auth.replace("Bearer","");
-        if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
-            try{
+    public ResponseEntity<ResponseDTO> getOrderDetails(@PathVariable Long orderId, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
+        String token = auth.replace("Bearer", "");
+        if (Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")) {
+            try {
                 Thread.sleep(2000);
                 Long customerId = jwtUtil.validateId(token);
-                return this.service.getOrder(orderId,customerId);
-            }catch (Exception e){
+                return this.service.getOrder(orderId, customerId);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -56,14 +50,14 @@ public class OrderController {
     }
 
     @GetMapping("/api/v2/orders")
-    public ResponseEntity<ResponseDTO> getAllOrders(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
-        String token = auth.replace("Bearer","");
-        if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
-            try{
+    public ResponseEntity<ResponseDTO> getAllOrders(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
+        String token = auth.replace("Bearer", "");
+        if (Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")) {
+            try {
                 Thread.sleep(2000);
                 Long customerId = jwtUtil.validateId(token);
                 return this.service.getAllOrder(customerId);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
@@ -72,13 +66,13 @@ public class OrderController {
     }
 
     @PostMapping("/api/v2/order/{orderId}/status")
-    public ResponseEntity<ResponseDTO>statusUpdate(@RequestBody OrderStatusBody orderStatusBody, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth, @PathVariable String orderId){
-        String token = auth.replace("Bearer","");
-        if(Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")){
-            try{
+    public ResponseEntity<ResponseDTO> statusUpdate(@RequestBody OrderStatusBody orderStatusBody, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth, @PathVariable String orderId) {
+        String token = auth.replace("Bearer", "");
+        if (Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")) {
+            try {
                 Thread.sleep(2000);
-                return this.service.updateStatus(orderStatusBody,Long.parseLong(orderId));
-            }catch (Exception e){
+                return this.service.updateStatus(orderStatusBody, Long.parseLong(orderId));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;

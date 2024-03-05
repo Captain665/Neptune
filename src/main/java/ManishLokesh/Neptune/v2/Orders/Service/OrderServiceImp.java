@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class OrderServiceImp implements OrderService{
+public class OrderServiceImp implements OrderService {
 
 
     @Autowired
@@ -71,7 +71,7 @@ public class OrderServiceImp implements OrderService{
 
     @Autowired
     public OrderServiceImp(RestTemplate restTemplate, @Value("${E-catering.stage.url}") String ecateUrl,
-                            @Value("${E-catering.auth.token}") String authToken, ObjectMapper objectMapper){
+                           @Value("${E-catering.auth.token}") String authToken, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
         this.EcateUrl = ecateUrl;
         this.AuthToken = authToken;
@@ -83,22 +83,22 @@ public class OrderServiceImp implements OrderService{
     public ResponseEntity<ResponseDTO> addOrder(OrderRequestBody orderRequestBody) {
 
         Object outletValid = outletRepo.findById(Long.parseLong(orderRequestBody.getOutletId()));
-        logger.info("requst body {} ",orderRequestBody.toString());
+        logger.info("requst body {} ", orderRequestBody.toString());
 
-        if(((Optional<?>) outletValid).isEmpty()){
-            return  new ResponseEntity<>(
+        if (((Optional<?>) outletValid).isEmpty()) {
+            return new ResponseEntity<>(
                     new ResponseDTO("failure", "outlet is not present", null),
                     HttpStatus.BAD_REQUEST);
         }
         Object customerData = custLoginRepo.findById(Long.parseLong(orderRequestBody.getCustomerId()));
-        if(((Optional<?>) customerData).isEmpty()){
-            return  new ResponseEntity<>(
+        if (((Optional<?>) customerData).isEmpty()) {
+            return new ResponseEntity<>(
                     new ResponseDTO("failure", "customer id is not present", null),
                     HttpStatus.BAD_REQUEST);
         }
         List<OrderItemRequest> itemsList = orderRequestBody.getOrderItem();
-        if(itemsList.isEmpty()){
-            return  new ResponseEntity<>(
+        if (itemsList.isEmpty()) {
+            return new ResponseEntity<>(
                     new ResponseDTO("failure", "Item list can not be empty", null),
                     HttpStatus.BAD_REQUEST);
         }
@@ -107,14 +107,14 @@ public class OrderServiceImp implements OrderService{
         List<Menu> menuList = itemIds.stream().map(itemId -> menuRepo.findById(itemId)).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
         List<OrderItems> orderItemsList = new ArrayList<>();
         Double subtotalPrice = 0.0;
-        for(Menu menu : menuList){
+        for (Menu menu : menuList) {
             OrderItems orderItems = new OrderItems();
             Long itemId = menu.getId();
             Optional<OrderItemRequest> quantity = itemsList.stream().filter(findId -> findId.getItemId().equals(itemId)).findFirst();
             Integer quantityValue = quantity.get().getQuantity();
             orderItems.setQuantity(quantityValue);
             Double basePrice = menu.getBasePrice();
-            subtotalPrice = subtotalPrice+(basePrice*quantityValue);
+            subtotalPrice = subtotalPrice + (basePrice * quantityValue);
             orderItems.setBasePrice(basePrice);
             orderItems.setItemId(menu.getId());
             orderItems.setItemName(menu.getName());
@@ -127,15 +127,15 @@ public class OrderServiceImp implements OrderService{
 
         }
         logger.info("order items data is, {}", orderItemsList.stream().collect(Collectors.toList()));
-        for(OrderItems item : orderItemsList ){
-            logger.info("item is added {}",item.toString());
+        for (OrderItems item : orderItemsList) {
+            logger.info("item is added {}", item.toString());
         }
         Orders orders = new Orders();
         orders.setBerth(orderRequestBody.getBerth());
         orders.setCoach(orderRequestBody.getCoach());
         orders.setTrainName(orderRequestBody.getTrainName());
         orders.setTrainNo(orderRequestBody.getTrainNo());
-        logger.info("delivery date from request body {}",orderRequestBody.getDeliveryDate());
+        logger.info("delivery date from request body {}", orderRequestBody.getDeliveryDate());
         orders.setDeliveryDate(orderRequestBody.getDeliveryDate());
         orders.setOrderFrom(orderRequestBody.getOrderFrom());
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -158,31 +158,30 @@ public class OrderServiceImp implements OrderService{
         Double gst = subtotalPrice * 0.05;
         orders.setGst(Double.valueOf(df.format(gst)));
         logger.info("run here");
-        logger.info("subtotal is {}",subtotalPrice);
+        logger.info("subtotal is {}", subtotalPrice);
         logger.info("tax is  {}", (subtotalPrice * 0.05));
         double deliveryCharges = 0;
-        if(orderRequestBody.getDeliveryCharge().isNaN()){
+        if (orderRequestBody.getDeliveryCharge().isNaN()) {
             deliveryCharges = orderRequestBody.getDeliveryCharge();
         }
-        logger.info("delivery charge is {}",deliveryCharges);
+        logger.info("delivery charge is {}", deliveryCharges);
         logger.info("total amount is  {}", (subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
         orders.setPayable_amount(Math.round(subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
 
         Orders saveOrder = orderRepository.saveAndFlush(orders);
 
 
-
         logger.info("order is saved {}", saveOrder.toString());
-        for(OrderItems orderItems : orderItemsList){
+        for (OrderItems orderItems : orderItemsList) {
             orderItems.setOrderId(String.valueOf(saveOrder.getId()));
         }
         List<OrderItems> orderItemsData = orderItemsRepository.saveAllAndFlush(orderItemsList);
         Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
-        Object customer   = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
-        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(),saveOrder.getTotalAmount(),saveOrder.getGst(),saveOrder.getDeliveryCharge(),
-                saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
-                saveOrder.getOutletId(),orderItemsData,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
-                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(),outlet,customer);
+        Object customer = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
+        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getTotalAmount(), saveOrder.getGst(), saveOrder.getDeliveryCharge(),
+                saveOrder.getPayable_amount(), saveOrder.getDeliveryDate(), saveOrder.getBookingDate(), saveOrder.getPaymentType(), saveOrder.getStatus(),
+                saveOrder.getOutletId(), orderItemsData, saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
+                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(), saveOrder.getPnr(), saveOrder.getCreatedAt(), saveOrder.getCreatedBy(), outlet, customer);
 
         logger.info("order is push to irctc");
         logger.info("request body {}", saveOrder.toString());
@@ -211,24 +210,24 @@ public class OrderServiceImp implements OrderService{
         outletInfo.setRelationshipManagerEmail(outletData.get().getEmailId());
         outletInfo.setRelationshipManagerPhone(outletData.get().getMobileNo());
         outletInfo.setFssaiNumber(outletData.get().getFssaiNo());
-        logger.info("fssai number {}",outletData.get().getFssaiNo());
+        logger.info("fssai number {}", outletData.get().getFssaiNo());
         outletInfo.setFssaiCutOffDate(outletData.get().getFssaiValidUpto() + " 00:00 IST");
-        logger.info("fssai upto date {}",outletData.get().getFssaiValidUpto() + " 00:00 IST");
+        logger.info("fssai upto date {}", outletData.get().getFssaiValidUpto() + " 00:00 IST");
         outletInfo.setGstNumber(outletData.get().getGstNo());
-        logger.info("gst number {}",outletData.get().getGstNo());
+        logger.info("gst number {}", outletData.get().getGstNo());
 
         logger.info("outlet id" + outletId);
         logger.info("outlet details " + outletInfo);
 
         String orderId = String.valueOf(saveOrder.getId());
-        logger.info("order id is {}",orderId);
+        logger.info("order id is {}", orderId);
         List<OrderItemsInfo> orderItemInfoList = new ArrayList<>();
 //        List<OrderItems> orderItemsData = orderItemsRepository.findByOrderId(orderId);
 
-        logger.info("order items data {}",orderItemsData);
-        for (OrderItems orderItems1 : orderItemsData){
+        logger.info("order items data {}", orderItemsData);
+        for (OrderItems orderItems1 : orderItemsData) {
             logger.info("runing........");
-            logger.info("item id {}",orderItems1.getItemId());
+            logger.info("item id {}", orderItems1.getItemId());
             OrderItemsInfo orderItemsInfo = new OrderItemsInfo();
             orderItemsInfo.setItemId(orderItems1.getItemId());
             orderItemsInfo.setItemName(orderItems1.getItemName());
@@ -245,46 +244,44 @@ public class OrderServiceImp implements OrderService{
 
         logger.info("order id " + orderId);
         logger.info("order items info [{}]", orderItemInfoList);
-        logger.info("delivery date, {}",saveOrder.getDeliveryDate() + " IST");
+        logger.info("delivery date, {}", saveOrder.getDeliveryDate() + " IST");
         logger.info("booking date {}", saveOrder.getBookingDate() + " IST");
 
         String paymentType = "PRE_PAID";
-        if(Objects.equals(saveOrder.getPaymentType(), "CASH")){
-             paymentType = "CASH_ON_DELIVERY";
+        if (Objects.equals(saveOrder.getPaymentType(), "CASH")) {
+            paymentType = "CASH_ON_DELIVERY";
         }
 
-        logger.info("payment type is {}",paymentType);
+        logger.info("payment type is {}", paymentType);
 
 
-
-        OrderPushToIRCTC orderPush = new OrderPushToIRCTC(saveOrder.getId(),"", "",customerInfo,
-                outletInfo, saveOrder.getBookingDate() +" IST",saveOrder.getDeliveryDate() + " IST",
-                saveOrder.getPnr(),saveOrder.getTrainName(),saveOrder.getTrainNo(),
-                saveOrder.getStationCode(),saveOrder.getStationName(),saveOrder.getCoach(),
-                saveOrder.getBerth(), saveOrder.getTotalAmount(),saveOrder.getDeliveryCharge(),
-                saveOrder.getGst(),0.0,saveOrder.getPayable_amount(),paymentType, orderItemInfoList);
-
+        OrderPushToIRCTC orderPush = new OrderPushToIRCTC(saveOrder.getId(), "", "", customerInfo,
+                outletInfo, saveOrder.getBookingDate() + " IST", saveOrder.getDeliveryDate() + " IST",
+                saveOrder.getPnr(), saveOrder.getTrainName(), saveOrder.getTrainNo(),
+                saveOrder.getStationCode(), saveOrder.getStationName(), saveOrder.getCoach(),
+                saveOrder.getBerth(), saveOrder.getTotalAmount(), saveOrder.getDeliveryCharge(),
+                saveOrder.getGst(), 0.0, saveOrder.getPayable_amount(), paymentType, orderItemInfoList);
 
 
         HttpHeaders httpHeaders = new HttpHeaders();
         logger.info("client error");
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         logger.info("type error ");
-        httpHeaders.add("Authorization",AuthToken);
+        httpHeaders.add("Authorization", AuthToken);
         logger.info("run here .... ");
         logger.info("auth token {} ", AuthToken);
         logger.info("http header {}", httpHeaders);
         logger.info("ecat url {}", EcateUrl);
-        try{
+        try {
             ResponseEntity<String> response = this.restTemplate.exchange(
-                    EcateUrl+"api/v1/order/vendor",
+                    EcateUrl + "api/v1/order/vendor",
                     HttpMethod.POST,
-                    new HttpEntity<>(orderPush,httpHeaders),
+                    new HttpEntity<>(orderPush, httpHeaders),
                     String.class
             );
             String responseBody = response.getBody();
-            try{
-                if(response.getStatusCode().is2xxSuccessful()){
+            try {
+                if (response.getStatusCode().is2xxSuccessful()) {
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     JsonNode resultObject = jsonNode.get("result");
                     JsonNode responseOrderId = resultObject.get("id");
@@ -296,23 +293,23 @@ public class OrderServiceImp implements OrderService{
                     orders2.setIrctcOrderId(irctcOrderId);
                     String irctcOrderStatus = String.valueOf(orderStatus);
                     String result = irctcOrderStatus.substring(1, irctcOrderStatus.length() - 1);
-                    if(result.equals("ORDER_CONFIRMED")){
+                    if (result.equals("ORDER_CONFIRMED")) {
                         orders2.setStatus("CONFIRMED");
-                    }else {
+                    } else {
                         orders2.setStatus(result);
                     }
                     logger.info("irctc order status {}", result);
                     Orders orders3 = orderRepository.save(orders2);
                 }
-            }catch (JsonProcessingException e){
+            } catch (JsonProcessingException e) {
                 return new ResponseEntity<>(new ResponseDTO<>("failure", "JSON processing error", null),
                         HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            logger.info("response body {}",response.getBody());
-        }catch (HttpClientErrorException e){
+            logger.info("response body {}", response.getBody());
+        } catch (HttpClientErrorException e) {
             logger.info("getting expections");
-            logger.info("error : {}",e.getResponseBodyAsString());
+            logger.info("error : {}", e.getResponseBodyAsString());
 //            return new ResponseEntity<>(
 //                    new ResponseDTO("failure", "something went wrong, please try again later", null),
 //                    HttpStatus.BAD_REQUEST);
@@ -329,26 +326,26 @@ public class OrderServiceImp implements OrderService{
     public ResponseEntity<ResponseDTO> getOrder(Long orderId, Long customerId) {
         Optional<Orders> orders = orderRepository.findById(orderId);
         Long customerDetail = Long.parseLong(orders.get().getCustomerId());
-        if(!customerDetail.equals(customerId)){
-            return new ResponseEntity<>(new ResponseDTO<>("failure","Not Authorize to Access",null),
+        if (!customerDetail.equals(customerId)) {
+            return new ResponseEntity<>(new ResponseDTO<>("failure", "Not Authorize to Access", null),
                     HttpStatus.UNAUTHORIZED);
         }
-        if(orders.isEmpty()) {
-            return new ResponseEntity<>(new ResponseDTO<>("failure","Incorrect order Id",null),
+        if (orders.isEmpty()) {
+            return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect order Id", null),
                     HttpStatus.BAD_REQUEST);
         }
-            Orders saveOrder = orders.get();
-            List<OrderItems> orderItems1 = orderItemsRepository.findByOrderId(String.valueOf(orderId));
-            Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
-            Object customer = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
+        Orders saveOrder = orders.get();
+        List<OrderItems> orderItems1 = orderItemsRepository.findByOrderId(String.valueOf(orderId));
+        Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
+        Object customer = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
 
-            OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(),saveOrder.getTotalAmount(),saveOrder.getGst(),saveOrder.getDeliveryCharge(),
-                    saveOrder.getPayable_amount(),saveOrder.getDeliveryDate(),saveOrder.getBookingDate(),saveOrder.getPaymentType(),saveOrder.getStatus(),
-                    saveOrder.getOutletId(),orderItems1,saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
-                    saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(), outlet,customer);
+        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getTotalAmount(), saveOrder.getGst(), saveOrder.getDeliveryCharge(),
+                saveOrder.getPayable_amount(), saveOrder.getDeliveryDate(), saveOrder.getBookingDate(), saveOrder.getPaymentType(), saveOrder.getStatus(),
+                saveOrder.getOutletId(), orderItems1, saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
+                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(), saveOrder.getPnr(), saveOrder.getCreatedAt(), saveOrder.getCreatedBy(), outlet, customer);
 
-            return new ResponseEntity<>(new ResponseDTO<>("success",null,orderResponseBody),
-                    HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBody),
+                HttpStatus.OK);
 
     }
 
@@ -356,8 +353,8 @@ public class OrderServiceImp implements OrderService{
     public ResponseEntity<ResponseDTO> getAllOrder(Long customerId) {
 //        List<Orders> ordersList = orderRepository.findAll();
         List<Orders> ordersList = orderRepository.findByCustomerId(String.valueOf(customerId));
-         List<OrderResponseBody> orderResponseBodies = new ArrayList<>();
-        for(Orders orders :ordersList){
+        List<OrderResponseBody> orderResponseBodies = new ArrayList<>();
+        for (Orders orders : ordersList) {
             OrderResponseBody orderBody = new OrderResponseBody();
             orderBody.setId(orders.getId());
             orderBody.setTrainName(orders.getTrainName());
@@ -388,30 +385,30 @@ public class OrderServiceImp implements OrderService{
             orderResponseBodies.add(orderBody);
         }
 
-        return new ResponseEntity<>(new ResponseDTO<>("success",null,orderResponseBodies),
+        return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBodies),
                 HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<ResponseDTO> updateStatus(OrderStatusBody orderStatusBody, Long orderId) {
         Optional<Orders> orders = orderRepository.findById(orderId);
-        if(!orders.isPresent()){
-            return new ResponseEntity<>(new ResponseDTO<>("failure","order is not found",null),
+        if (!orders.isPresent()) {
+            return new ResponseEntity<>(new ResponseDTO<>("failure", "order is not found", null),
                     HttpStatus.BAD_REQUEST);
         }
-            Orders orders1 = orders.get();
-            orders1.setStatus(orderStatusBody.getStatus());
-            Orders orders2 = orderRepository.save(orders1);
-            List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orderId));
-            Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders1.getOutletId())));
-            Object customer = custLoginRepo.findById(Long.parseLong(orders1.getCustomerId()));
+        Orders orders1 = orders.get();
+        orders1.setStatus(orderStatusBody.getStatus());
+        Orders orders2 = orderRepository.save(orders1);
+        List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orderId));
+        Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders1.getOutletId())));
+        Object customer = custLoginRepo.findById(Long.parseLong(orders1.getCustomerId()));
 
-            OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(),orders2.getTotalAmount(),orders2.getGst(),orders2.getDeliveryCharge(),
-                    orders2.getPayable_amount(),orders2.getDeliveryDate(),orders2.getBookingDate(),orders2.getPaymentType(),orders2.getStatus(),
-                    orders2.getOutletId(),orderItemsList,orders2.getTrainName(), orders2.getTrainNo(), orders2.getStationCode(), orders2.getStationName(),
-                    orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(),orders2.getPnr(),orders2.getCreatedAt(),orders2.getCreatedBy(),outlet,customer);
+        OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(), orders2.getTotalAmount(), orders2.getGst(), orders2.getDeliveryCharge(),
+                orders2.getPayable_amount(), orders2.getDeliveryDate(), orders2.getBookingDate(), orders2.getPaymentType(), orders2.getStatus(),
+                orders2.getOutletId(), orderItemsList, orders2.getTrainName(), orders2.getTrainNo(), orders2.getStationCode(), orders2.getStationName(),
+                orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(), orders2.getPnr(), orders2.getCreatedAt(), orders2.getCreatedBy(), outlet, customer);
 
-            return new ResponseEntity<>(new ResponseDTO<>("failure",null,orderResponseBody),
-                    HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO<>("failure", null, orderResponseBody),
+                HttpStatus.OK);
     }
 }
