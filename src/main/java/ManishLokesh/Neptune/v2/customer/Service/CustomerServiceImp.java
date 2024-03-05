@@ -48,6 +48,8 @@ public class CustomerServiceImp implements CustomerService {
 
     @Override
     public ResponseEntity<ResponseDTO> CustomerAuthLogin(CustoLoginRequestBody loginRequestBody) {
+
+        logger.info("customer request body {}",loginRequestBody.toString());
         Customer login = custLoginRepo.findByMobileNumber(loginRequestBody.getMobileNumber());
         if(login != null){
             if(Objects.equals(login.getMobileNumber(), loginRequestBody.getMobileNumber())){
@@ -83,6 +85,7 @@ public class CustomerServiceImp implements CustomerService {
 
     @Override
     public ResponseEntity<ResponseDTO> newCustomerSignUp(CustoSignupRequestBody requestBody) {
+        logger.info("customer signup request body {}",requestBody.toString());
         CustomerSignup exist = signupRepo.findByMobileNumber(requestBody.getMobileNumber());
         if(exist != null){
             Customer already = loginRepo.findByMobileNumber(requestBody.getMobileNumber());
@@ -131,6 +134,8 @@ public class CustomerServiceImp implements CustomerService {
 
     @Override
     public ResponseEntity<ResponseDTO> CustoOtpValidate(CustOtpValidateRequestBody validateRequestBody) {
+
+        logger.info("customer login validate request body {}",validateRequestBody.toString());
         CustomerSignup signup = custSignupRepo.findByMobileNumber(validateRequestBody.getMobileNumber());
         if(signup == null){
             return new ResponseEntity<>(new ResponseDTO("failure",

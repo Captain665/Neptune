@@ -5,6 +5,14 @@ public class CustOtpValidateRequestBody {
     private String mobileNumber;
     private String otp;
 
+    @Override
+    public String toString() {
+        return "CustOtpValidateRequestBody{" +
+                "mobileNumber='" + mobileNumber + '\'' +
+                ", otp='" + otp + '\'' +
+                '}';
+    }
+
     public String getMobileNumber() {
         return mobileNumber;
     }

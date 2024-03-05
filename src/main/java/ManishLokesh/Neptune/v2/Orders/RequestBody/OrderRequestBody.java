@@ -18,6 +18,27 @@ public class OrderRequestBody {
     private String orderFrom;
     private List<OrderItemRequest> orderItem;
 
+
+    @Override
+    public String toString() {
+        return "OrderRequestBody{" +
+                "trainName='" + trainName + '\'' +
+                ", trainNo='" + trainNo + '\'' +
+                ", stationCode='" + stationCode + '\'' +
+                ", stationName='" + stationName + '\'' +
+                ", coach='" + coach + '\'' +
+                ", berth='" + berth + '\'' +
+                ", deliveryDate='" + deliveryDate + '\'' +
+                ", outletId='" + outletId + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", pnr='" + pnr + '\'' +
+                ", paymentType='" + paymentType + '\'' +
+                ", deliveryCharge=" + deliveryCharge +
+                ", orderFrom='" + orderFrom + '\'' +
+                ", orderItem=" + orderItem +
+                '}';
+    }
+
     public String getTrainName() {
         return trainName;
     }

@@ -24,6 +24,18 @@ public class SignupRequestBody {
     @NotBlank(message = "Password is not blank")
     private String password;
 
+
+    @Override
+    public String toString() {
+        return "SignupRequestBody{" +
+                "fullName='" + fullName + '\'' +
+                ", mobileNumber='" + mobileNumber + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", gender='" + gender + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
     public String getFullName() {
         return fullName;
     }

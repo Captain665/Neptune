@@ -66,6 +66,37 @@ public class CreateOutletResponse <T>{
     }
 
 
+    @Override
+    public String toString() {
+        return "CreateOutletResponse{" +
+                "id=" + id +
+                ", outletName='" + outletName + '\'' +
+                ", minOrderValue=" + minOrderValue +
+                ", orderTiming=" + orderTiming +
+                ", openingTime='" + openingTime + '\'' +
+                ", closingTime='" + closingTime + '\'' +
+                ", deliveryCost=" + deliveryCost +
+                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", prepaid=" + prepaid +
+                ", companyName='" + companyName + '\'' +
+                ", panCard='" + panCard + '\'' +
+                ", gstNo='" + gstNo + '\'' +
+                ", fssaiNo='" + fssaiNo + '\'' +
+                ", fssaiValidUpto='" + fssaiValidUpto + '\'' +
+                ", active=" + active +
+                ", createdAt='" + createdAt + '\'' +
+                ", outletClosing=" + outletClosing +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", logoImage='" + logoImage + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", mobileNo='" + mobileNo + '\'' +
+                ", stationCode='" + stationCode + '\'' +
+                ", tags='" + tags + '\'' +
+                '}';
+    }
+
     public CreateOutletResponse(){
     }
 

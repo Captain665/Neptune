@@ -38,6 +38,7 @@ public class SignupServiceImp implements SignupService{
     private Logger logger = LoggerFactory.getLogger("app.signup.service.v1");
     @Override
     public ResponseEntity<ResponseDTO> signup(SignupRequestBody requestBody) {
+        logger.info("api/v1/signup request json {}",requestBody.toString());
         try{
             Signup exist = signupRepo.findByMobileNumber(requestBody.getMobileNumber());
 
@@ -75,6 +76,7 @@ public class SignupServiceImp implements SignupService{
             signupRepo.save(signup);
             logger.info("email Id : {}",signup.getEmailId());
             logger.info("otp : {}",otp);
+            logger.info("response : OTP sent to the registered Email Id");
             runAsync(() -> sendSignupOTP.sendOTP(signup.getEmailId(), otp,"Vendor Signup OTP","Your Signup OTP is :"));
             return new ResponseEntity<>(new ResponseDTO<>("success",null,
                     "OTP sent to the registered Email Id"),HttpStatus.OK);
@@ -87,6 +89,7 @@ public class SignupServiceImp implements SignupService{
 
     @Override
     public ResponseEntity<ResponseDTO> otpValidate(OtpValidateRequestBody otpValidateRequestBody) {
+        logger.info("api/v1/otp-validate request json {}",otpValidateRequestBody.toString());
         try{
             if(signupRepo.findByMobileNumber(otpValidateRequestBody.getMobileNumber()) == null){
                 return new ResponseEntity<>(new ResponseDTO("failure","Incorrect mobile number",
@@ -112,6 +115,8 @@ public class SignupServiceImp implements SignupService{
                         String token = jwtUtil.generateToken(login1.getRole(),login.getId());
                         OtpValidateResponse res = new OtpValidateResponse(login1.getId(), login1.getCreatedAt(), login1.getFullName(), login1.getEmailId(),
                                 login1.getMobileNumber(),login1.getGender(), login1.getUpdatedAt(),token,userRole);
+
+                        logger.info("response : {}", res.toString());
                         return new ResponseEntity<>(new ResponseDTO("Success",null,res) ,HttpStatus.OK);
                     }else{
                         return new ResponseEntity<>(new ResponseDTO("failure","Account already Created",
@@ -128,6 +133,7 @@ public class SignupServiceImp implements SignupService{
 
 @Override
 public ResponseEntity<ResponseDTO> login(LoginRequestBody loginRequestBody) {
+        logger.info("api/v1/login request json {}",loginRequestBody.toString());
         try{
             Login login = loginRepo.findByMobileNumber(loginRequestBody.getMobileNumber());
             if (login != null) {
@@ -140,6 +146,8 @@ public ResponseEntity<ResponseDTO> login(LoginRequestBody loginRequestBody) {
                                 login.getFullName(), login.getEmailId(),
                                 login.getMobileNumber(), login.getGender(), login.getUpdatedAt(),
                                 login.getLastLogin(),token,login.getRole());
+
+                        logger.info("response : {}",res.toString());
 
                         return new ResponseEntity<>(new ResponseDTO("Success", null, res), HttpStatus.OK);
                     } else {

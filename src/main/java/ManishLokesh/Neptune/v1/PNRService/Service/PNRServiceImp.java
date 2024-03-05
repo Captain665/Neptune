@@ -58,6 +58,8 @@ public class PNRServiceImp implements PNRservice{
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     JsonNode resultObject = jsonNode.get("result");
 
+                    logger.info("response {}", resultObject.toString());
+
                     return new ResponseEntity<>(new ResponseDTO<>("success",null,resultObject),
                             HttpStatus.OK);
                 }catch (JsonProcessingException e){

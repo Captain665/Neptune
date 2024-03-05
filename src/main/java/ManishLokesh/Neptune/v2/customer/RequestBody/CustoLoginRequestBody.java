@@ -6,6 +6,15 @@ public class CustoLoginRequestBody {
     private String mobileNumber;
     private String password;
 
+
+    @Override
+    public String toString() {
+        return "CustoLoginRequestBody{" +
+                "mobileNumber='" + mobileNumber + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
     public String getMobileNumber() {
         return mobileNumber;
     }

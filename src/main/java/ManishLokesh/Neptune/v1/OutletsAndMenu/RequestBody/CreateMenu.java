@@ -15,9 +15,26 @@ public class CreateMenu {
     private String image;
     private String customisations;
 
+    @Override
+    public String toString() {
+        return "CreateMenu{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", basePrice=" + basePrice +
+                ", tax=" + tax +
+                ", sellingPrice=" + sellingPrice +
+                ", foodType='" + foodType + '\'' +
+                ", cuisine='" + cuisine + '\'' +
+                ", tags='" + tags + '\'' +
+                ", bulkOnly=" + bulkOnly +
+                ", isVegeterian=" + isVegeterian +
+                ", image='" + image + '\'' +
+                ", customisations='" + customisations + '\'' +
+                '}';
+    }
 
-    public CreateMenu(String name,String description, Double basePrice,Double tax,
-                      Double sellingPrice,String foodType,String cuisine, String tags, Boolean bulkOnly,
+    public CreateMenu(String name, String description, Double basePrice, Double tax,
+                      Double sellingPrice, String foodType, String cuisine, String tags, Boolean bulkOnly,
                       Boolean isVegeterian, String image, String customisations){
         this.name = name;
         this.description = description;

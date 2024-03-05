@@ -30,6 +30,33 @@ public class Orders {
     private Double payable_amount;
     private Long IrctcOrderId;
 
+    @Override
+    public String toString() {
+        return "Orders{" +
+                "id=" + id +
+                ", trainName='" + trainName + '\'' +
+                ", trainNo='" + trainNo + '\'' +
+                ", stationCode='" + stationCode + '\'' +
+                ", stationName='" + stationName + '\'' +
+                ", coach='" + coach + '\'' +
+                ", berth='" + berth + '\'' +
+                ", deliveryDate='" + deliveryDate + '\'' +
+                ", bookingDate='" + bookingDate + '\'' +
+                ", outletId='" + outletId + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", status='" + status + '\'' +
+                ", createdBy='" + createdBy + '\'' +
+                ", pnr='" + pnr + '\'' +
+                ", paymentType='" + paymentType + '\'' +
+                ", deliveryCharge=" + deliveryCharge +
+                ", orderFrom='" + orderFrom + '\'' +
+                ", totalAmount=" + totalAmount +
+                ", gst=" + gst +
+                ", payable_amount=" + payable_amount +
+                ", IrctcOrderId=" + IrctcOrderId +
+                '}';
+    }
 
     public Long getId() {
         return id;

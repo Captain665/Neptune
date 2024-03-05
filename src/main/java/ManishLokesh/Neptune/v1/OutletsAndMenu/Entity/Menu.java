@@ -28,6 +28,31 @@ public class Menu {
     private Boolean active;
     private String irctcMenuId;
 
+    @Override
+    public String toString() {
+        return "Menu{" +
+                "id=" + id +
+                ", outletId='" + outletId + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", basePrice=" + basePrice +
+                ", tax=" + tax +
+                ", sellingPrice=" + sellingPrice +
+                ", foodType='" + foodType + '\'' +
+                ", cuisine='" + cuisine + '\'' +
+                ", tags='" + tags + '\'' +
+                ", bulkOnly=" + bulkOnly +
+                ", isVegeterian=" + isVegeterian +
+                ", image='" + image + '\'' +
+                ", customisations='" + customisations + '\'' +
+                ", openingTime='" + openingTime + '\'' +
+                ", closingTime='" + closingTime + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", active=" + active +
+                ", irctcMenuId='" + irctcMenuId + '\'' +
+                '}';
+    }
 
     public Long getId() {
         return id;

@@ -30,6 +30,33 @@ public class CreateOutlet {
     public CreateOutlet(){
     }
 
+    @Override
+    public String toString() {
+        return "CreateOutlet{" +
+                "stationCode='" + stationCode + '\'' +
+                ", outletName='" + outletName + '\'' +
+                ", minOrderValue=" + minOrderValue +
+                ", orderTiming=" + orderTiming +
+                ", openingTime='" + openingTime + '\'' +
+                ", closingTime='" + closingTime + '\'' +
+                ", deliveryCost=" + deliveryCost +
+                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", prepaid=" + prepaid +
+                ", companyName='" + companyName + '\'' +
+                ", panCard='" + panCard + '\'' +
+                ", gstNo='" + gstNo + '\'' +
+                ", fssaiNo='" + fssaiNo + '\'' +
+                ", fssaiValidUpto='" + fssaiValidUpto + '\'' +
+                ", outletClosing=" + outletClosing +
+                ", logoImage='" + logoImage + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", mobileNo='" + mobileNo + '\'' +
+                ", tags='" + tags + '\'' +
+                '}';
+    }
+
     public String getStationCode() {
         return stationCode;
     }

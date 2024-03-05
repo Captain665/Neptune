@@ -27,6 +27,21 @@ public class OtpValidateResponse {
         this.role = role;
     }
 
+    @Override
+    public String toString() {
+        return "OtpValidateResponse{" +
+                "id=" + id +
+                ", createdAt='" + createdAt + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", mobileNumber='" + mobileNumber + '\'' +
+                ", gender='" + gender + '\'' +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", jwt='" + jwt + '\'' +
+                ", role='" + role + '\'' +
+                '}';
+    }
+
     public String getRole() {
         return role;
     }

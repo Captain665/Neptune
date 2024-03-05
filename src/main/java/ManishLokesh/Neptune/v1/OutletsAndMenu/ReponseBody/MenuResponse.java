@@ -47,6 +47,29 @@ public class MenuResponse {
         this.active = active;
     }
 
+    @Override
+    public String toString() {
+        return "MenuResponse{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", basePrice=" + basePrice +
+                ", tax=" + tax +
+                ", sellingPrice=" + sellingPrice +
+                ", foodType='" + foodType + '\'' +
+                ", cuisine='" + cuisine + '\'' +
+                ", tags='" + tags + '\'' +
+                ", bulkOnly=" + bulkOnly +
+                ", isVegeterian=" + isVegeterian +
+                ", image='" + image + '\'' +
+                ", customisations='" + customisations + '\'' +
+                ", openingTime='" + openingTime + '\'' +
+                ", closingTime='" + closingTime + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", active=" + active +
+                '}';
+    }
 
     public Long getId() {
         return id;

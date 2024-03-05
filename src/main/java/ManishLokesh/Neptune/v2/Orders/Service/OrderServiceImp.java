@@ -81,9 +81,9 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     public ResponseEntity<ResponseDTO> addOrder(OrderRequestBody orderRequestBody) {
+
         Object outletValid = outletRepo.findById(Long.parseLong(orderRequestBody.getOutletId()));
-        logger.info("requst body {} ",orderRequestBody);
-        logger.info("outlet preset {}",outletValid.toString());
+        logger.info("requst body {} ",orderRequestBody.toString());
 
         if(((Optional<?>) outletValid).isEmpty()){
             return  new ResponseEntity<>(
@@ -97,6 +97,12 @@ public class OrderServiceImp implements OrderService{
                     HttpStatus.BAD_REQUEST);
         }
         List<OrderItemRequest> itemsList = orderRequestBody.getOrderItem();
+        if(itemsList.isEmpty()){
+            return  new ResponseEntity<>(
+                    new ResponseDTO("failure", "Item list can not be empty", null),
+                    HttpStatus.BAD_REQUEST);
+        }
+
         List<Long> itemIds = itemsList.stream().map(OrderItemRequest::getItemId).filter(Objects::nonNull).collect(Collectors.toList());
         List<Menu> menuList = itemIds.stream().map(itemId -> menuRepo.findById(itemId)).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
         List<OrderItems> orderItemsList = new ArrayList<>();
@@ -119,8 +125,8 @@ public class OrderServiceImp implements OrderService{
             orderItems.setSellingPrice(menu.getSellingPrice());
             orderItemsList.add(orderItems);
 
-
         }
+        logger.info("order items data is, {}", orderItemsList.stream().collect(Collectors.toList()));
         for(OrderItems item : orderItemsList ){
             logger.info("item is added {}",item.toString());
         }
@@ -132,18 +138,19 @@ public class OrderServiceImp implements OrderService{
         logger.info("delivery date from request body {}",orderRequestBody.getDeliveryDate());
         orders.setDeliveryDate(orderRequestBody.getDeliveryDate());
         orders.setOrderFrom(orderRequestBody.getOrderFrom());
-        orders.setCreatedAt(LocalDateTime.now().toString());
         LocalDateTime localDateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String formatedBookingData = localDateTime.format(formatter);
         orders.setBookingDate(formatedBookingData);
+        String formatedCreatedDate = localDateTime.format(formatter);
+        orders.setCreatedAt(formatedCreatedDate);
         orders.setStationName(orderRequestBody.getStationName());
         orders.setStationCode(orderRequestBody.getStationCode());
         orders.setOutletId(orderRequestBody.getOutletId());
         orders.setCustomerId(orderRequestBody.getCustomerId());
         orders.setPnr(orderRequestBody.getPnr());
         orders.setCreatedBy("CUSTOMER");
-        orders.setStatus("ORDER_PLACED");
+        orders.setStatus("PLACED");
         orders.setPaymentType(orderRequestBody.getPaymentType());
         orders.setDeliveryCharge(orderRequestBody.getDeliveryCharge());
         orders.setTotalAmount(subtotalPrice);
@@ -159,13 +166,13 @@ public class OrderServiceImp implements OrderService{
         }
         logger.info("delivery charge is {}",deliveryCharges);
         logger.info("total amount is  {}", (subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
-        orders.setPayable_amount((subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
+        orders.setPayable_amount(Math.round(subtotalPrice + (subtotalPrice * 0.05)) + deliveryCharges);
 
         Orders saveOrder = orderRepository.saveAndFlush(orders);
 
 
 
-        logger.info("order is saved " + saveOrder);
+        logger.info("order is saved {}", saveOrder.toString());
         for(OrderItems orderItems : orderItemsList){
             orderItems.setOrderId(String.valueOf(saveOrder.getId()));
         }
@@ -178,7 +185,7 @@ public class OrderServiceImp implements OrderService{
                 saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(),saveOrder.getPnr(),saveOrder.getCreatedAt(),saveOrder.getCreatedBy(),outlet,customer);
 
         logger.info("order is push to irctc");
-        logger.info("request body " + saveOrder);
+        logger.info("request body {}", saveOrder.toString());
 
         Long customerId = Long.valueOf(saveOrder.getCustomerId());
         Optional<Customer> customerDa = custLoginRepo.findById(customerId);
@@ -188,7 +195,7 @@ public class OrderServiceImp implements OrderService{
         customerInfo.setMobile(customerDa.get().getMobileNumber());
 
         logger.info("customer id" + customerId);
-        logger.info("customer details  {}", customerInfo);
+        logger.info("customer details  {}", customerInfo.toString());
 
         Long outletId = Long.valueOf(saveOrder.getOutletId());
         Optional<Outlet> outletData = outletRepo.findById(outletId);
@@ -241,13 +248,21 @@ public class OrderServiceImp implements OrderService{
         logger.info("delivery date, {}",saveOrder.getDeliveryDate() + " IST");
         logger.info("booking date {}", saveOrder.getBookingDate() + " IST");
 
+        String paymentType = "PRE_PAID";
+        if(Objects.equals(saveOrder.getPaymentType(), "CASH")){
+             paymentType = "CASH_ON_DELIVERY";
+        }
+
+        logger.info("payment type is {}",paymentType);
+
+
 
         OrderPushToIRCTC orderPush = new OrderPushToIRCTC(saveOrder.getId(),"", "",customerInfo,
                 outletInfo, saveOrder.getBookingDate() +" IST",saveOrder.getDeliveryDate() + " IST",
                 saveOrder.getPnr(),saveOrder.getTrainName(),saveOrder.getTrainNo(),
                 saveOrder.getStationCode(),saveOrder.getStationName(),saveOrder.getCoach(),
                 saveOrder.getBerth(), saveOrder.getTotalAmount(),saveOrder.getDeliveryCharge(),
-                saveOrder.getGst(),0.0,saveOrder.getPayable_amount(),saveOrder.getPaymentType(), orderItemInfoList);
+                saveOrder.getGst(),0.0,saveOrder.getPayable_amount(),paymentType, orderItemInfoList);
 
 
 
@@ -281,8 +296,12 @@ public class OrderServiceImp implements OrderService{
                     orders2.setIrctcOrderId(irctcOrderId);
                     String irctcOrderStatus = String.valueOf(orderStatus);
                     String result = irctcOrderStatus.substring(1, irctcOrderStatus.length() - 1);
+                    if(result.equals("ORDER_CONFIRMED")){
+                        orders2.setStatus("CONFIRMED");
+                    }else {
+                        orders2.setStatus(result);
+                    }
                     logger.info("irctc order status {}", result);
-                    orders2.setStatus(result);
                     Orders orders3 = orderRepository.save(orders2);
                 }
             }catch (JsonProcessingException e){
@@ -293,14 +312,13 @@ public class OrderServiceImp implements OrderService{
             logger.info("response body {}",response.getBody());
         }catch (HttpClientErrorException e){
             logger.info("getting expections");
-            logger.info("error : {}",e.toString());
-            return new ResponseEntity<>(
-                    new ResponseDTO("failure", "something went wrong, please try again later", null),
-                    HttpStatus.BAD_REQUEST);
+            logger.info("error : {}",e.getResponseBodyAsString());
+//            return new ResponseEntity<>(
+//                    new ResponseDTO("failure", "something went wrong, please try again later", null),
+//                    HttpStatus.BAD_REQUEST);
         }
 
         logger.info("order push is completed");
-
 
         return new ResponseEntity<>(
                 new ResponseDTO("success", null, orderResponseBody),

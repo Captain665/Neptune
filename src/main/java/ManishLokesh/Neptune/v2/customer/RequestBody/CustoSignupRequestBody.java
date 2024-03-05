@@ -8,6 +8,16 @@ public class CustoSignupRequestBody {
     private String password;
     private String gender;
 
+    @Override
+    public String toString() {
+        return "CustoSignupRequestBody{" +
+                "fullName='" + fullName + '\'' +
+                ", mobileNumber='" + mobileNumber + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", password='" + password + '\'' +
+                ", gender='" + gender + '\'' +
+                '}';
+    }
 
     public String getFullName() {
         return fullName;

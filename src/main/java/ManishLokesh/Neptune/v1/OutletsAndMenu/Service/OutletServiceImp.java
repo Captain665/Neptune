@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 @Service 
 public class OutletServiceImp implements OutletService{
 
-    private Logger logger = LoggerFactory.getLogger("app.OutletService");
+    private Logger logger = LoggerFactory.getLogger("app.outlet.service");
     @Autowired
     public OutletRepo outletRepo;
     @Autowired
@@ -61,6 +62,8 @@ public class OutletServiceImp implements OutletService{
 
     @Override
     public ResponseEntity<ResponseDTO> CreateNewOutlet(CreateOutlet createOutlet) {
+
+        logger.info("api/v1/add/outlet  request json {}",createOutlet.toString());
 
         logger.info("hlw working name is : {}", createOutlet.getOutletName());
 
@@ -111,6 +114,8 @@ public class OutletServiceImp implements OutletService{
                 o.getActive(),o.getCreatedAt(),storeClose,o.getUpdatedAt(),o.getLogoImage(),o.getEmailId(),
                 o.getMobileNo(),o.getStationCode(),o.getTags());
 
+        logger.info("response {}",createOutletResponse.toString());
+
         return new ResponseEntity<>(new ResponseDTO("success",null,createOutletResponse),
                 HttpStatus.CREATED);
     }
@@ -118,7 +123,13 @@ public class OutletServiceImp implements OutletService{
 
     @Override
     public ResponseEntity<ResponseDTO> UpdateOutlet(CreateOutlet updateOutlet,Long outletId) {
+
+        logger.info("api/v1/update/outlet  requested outlet ID {}",outletId);
+        logger.info("api/v1/update/outlet  request json {}",updateOutlet.toString());
+
         Optional <Outlet> outletDetails = outletRepo.findById(outletId);
+        logger.info("outlet found in database {}",outletDetails.toString());
+
         if(outletDetails.isPresent()){
             Outlet outlet = outletDetails.get();
             outlet.setStationCode(updateOutlet.getStationCode());
@@ -190,18 +201,23 @@ public class OutletServiceImp implements OutletService{
                 pushOutlet.add(outlet2);
             }
             OutletsPushToIRCTC outletsPushToIRCTC = new OutletsPushToIRCTC(pushOutlet);
-            logger.info("testing : {}",pushOutlet);
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            httpHeaders.add("Authorization",AuthToken);
-            String stationCode = o.getStationCode();
-            Object response = this.restTemplate.exchange(
-                    EcateUrl+"api/v1/vendor/aggregator/outlets/"+stationCode,
-                    HttpMethod.POST,
-                    new HttpEntity<>(outletsPushToIRCTC,httpHeaders),
-                    Object.class
-            ).getBody();
-            logger.info("testing : {}",response);
+            logger.info("outlet push to IRCTC body {}",outletsPushToIRCTC.toString());
+            try{
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+                httpHeaders.add("Authorization",AuthToken);
+                String stationCode = o.getStationCode();
+                String response = this.restTemplate.exchange(
+                        EcateUrl+"api/v1/vendor/aggregator/outlets/"+stationCode,
+                        HttpMethod.POST,
+                        new HttpEntity<>(outletsPushToIRCTC,httpHeaders),
+                        String.class
+                ).getBody();
+                logger.info("outlet is pushed to IRCTC {}",response);
+            }catch (HttpClientErrorException e){
+                logger.info("Getting Error from IRCTC API's, {}",e.getResponseBodyAsString());
+            }
+            logger.info("response {}", updateOutletResponse.toString());
 
             return new ResponseEntity<>(new ResponseDTO<>("success",null,updateOutletResponse),
                     HttpStatus.OK);
@@ -213,18 +229,25 @@ public class OutletServiceImp implements OutletService{
 
     @Override
     public ResponseEntity<ResponseDTO> CreateNewMenu(Long outletId,CreateMenu createMenu) {
+        logger.info("api/v1//add/menu/outlet  requested json {}",createMenu.toString());
+
         Optional<Outlet> outletDetails = outletRepo.findById(outletId);
         if (!outletRepo.findById(outletId).isPresent()) {
             return new ResponseEntity<>(new ResponseDTO<>("failure", "Outlet is not Present", null), HttpStatus.BAD_REQUEST);
         }
-        BigDecimal basePrice = new BigDecimal(createMenu.getBasePrice());
-        BigDecimal tax = new BigDecimal(createMenu.getTax());
-        BigDecimal sellingPrice = new BigDecimal(createMenu.getSellingPrice());
-        BigDecimal calculatedTax = basePrice.multiply(new BigDecimal("0.05"));
-        BigDecimal calculatedSellingPrice = basePrice.add(tax);
-        if (!(calculatedTax.compareTo(tax) == 0 && calculatedSellingPrice.compareTo(sellingPrice) == 0)) {
-            return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect tax or selling price price", null), HttpStatus.BAD_REQUEST);
-        }
+
+        Double basePrice = createMenu.getBasePrice();
+        Double calculatedTax = Double.valueOf(String.format("%.2f", basePrice * 0.05));
+        Double calculatedSellingPrice = Double.valueOf(String.format("%.2f", basePrice + calculatedTax));
+
+        logger.info("calculated tax {}",calculatedTax);
+        logger.info("calculated selling price {}",calculatedSellingPrice);
+
+//        if (!(calculatedTax.compareTo(tax) == 0 && calculatedSellingPrice.compareTo(sellingPrice) == 0)) {
+//            return new ResponseEntity<>(new ResponseDTO<>("failure",
+//                    "Incorrect tax or selling price price", null),
+//                    HttpStatus.BAD_REQUEST);
+//        }
         Menu menu = new Menu();
         String aggMenuId = String.valueOf((int) (Math.random() * 90000) + 10000);
         menu.setIrctcMenuId(aggMenuId);
@@ -233,8 +256,8 @@ public class OutletServiceImp implements OutletService{
         menu.setOutletId(outletId.toString());
         menu.setName(createMenu.getName());
         menu.setBasePrice(createMenu.getBasePrice());
-        menu.setTax(createMenu.getTax());
-        menu.setSellingPrice(createMenu.getSellingPrice());
+        menu.setTax(calculatedTax);
+        menu.setSellingPrice(calculatedSellingPrice);
         menu.setImage(createMenu.getImage());
         menu.setDescription(createMenu.getDescription());
         menu.setFoodType(createMenu.getFoodType());
@@ -253,7 +276,7 @@ public class OutletServiceImp implements OutletService{
                 m.getBulkOnly(), m.getIsVegeterian(), m.getImage(), m.getCustomisations(), m.getOpeningTime(),
                 m.getClosingTime(), m.getCreatedAt(), m.getUpdatedAt(), m.getActive());
 
-        logger.info("menu res {}", menuResponse);
+        logger.info("response {}", menuResponse.toString());
 
         return new ResponseEntity<>(new ResponseDTO<>("Success", null, menuResponse), HttpStatus.CREATED);
     }
@@ -261,6 +284,9 @@ public class OutletServiceImp implements OutletService{
 
     @Override
     public ResponseEntity<ResponseDTO> UpdateMenu(CreateMenu updateMenu, Long outletId, Long menuId) {
+        logger.info("Requested outlet id is : {}",outletId);
+        logger.info("Requested menu id is : {}",menuId);
+        logger.info("api/v1/outlet/{outletId}/menu/{menuId}  request body {}", updateMenu.toString());
         Optional<Outlet> outletDetails = outletRepo.findById(outletId);
         if(outletDetails.isEmpty()) {
             return new ResponseEntity<>(new ResponseDTO("failure","Outlet is not found",null), HttpStatus.BAD_REQUEST);
@@ -331,19 +357,25 @@ public class OutletServiceImp implements OutletService{
                             menuPushList.add(pushData);
                         }
                         MenuPushToIRCTC menuPushToIRCTC = new MenuPushToIRCTC(menuPushList);
-                        logger.info("item data push, {}",menuPushToIRCTC);
 
-                        HttpHeaders httpHeaders = new HttpHeaders();
-                        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-                        httpHeaders.add("Authorization",AuthToken);
-                        Object response = this.restTemplate.exchange(
-                                EcateUrl+"api/v1/vendor/aggregator/station/"+stationCode+"/"+"outlet" +"/"+irctcOutletId,
-                                HttpMethod.POST,
-                                new HttpEntity<>(menuPushToIRCTC,httpHeaders),
-                                Object.class
-                        ).getBody();
+                        logger.info("item data push, {}",menuPushToIRCTC.toString());
 
-                        logger.info("push data : {}",response);
+                        try{
+                            HttpHeaders httpHeaders = new HttpHeaders();
+                            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+                            httpHeaders.add("Authorization",AuthToken);
+                            String response = this.restTemplate.exchange(
+                                    EcateUrl+"api/v1/vendor/aggregator/station/"+stationCode+"/"+"outlet" +"/"+irctcOutletId,
+                                    HttpMethod.POST,
+                                    new HttpEntity<>(menuPushToIRCTC,httpHeaders),
+                                    String.class
+                            ).getBody();
+                            logger.info("push data : {}", response);
+                        }catch (HttpClientErrorException e){
+                            logger.info("error from irctc API {}",e.getResponseBodyAsString());
+                        }
+
+                        logger.info("response {} ",menu.toString());
                         return new ResponseEntity<>(new ResponseDTO("success",null,menu),HttpStatus.OK);
 //                    else{
 //                        return new ResponseEntity<>(new ResponseDTO("failure","Incorrect Selling price",null), HttpStatus.BAD_REQUEST);
@@ -359,7 +391,7 @@ public class OutletServiceImp implements OutletService{
         logger.info("outlet Id {}",outletId);
         logger.info("set status {}",status);
         Optional<Outlet> outletDetails = outletRepo.findById(outletId);
-        logger.info("outlet in db {}",outletDetails);
+        logger.info("outlet in db {}",outletDetails.toString());
         if(outletDetails.isPresent()){
             Outlet outlet = outletDetails.get();
             outlet.setActive(status);
@@ -420,6 +452,9 @@ public class OutletServiceImp implements OutletService{
 
     @Override
     public ResponseEntity<ResponseDTO> ActiveMenu(Long menuId,Boolean status) {
+        logger.info("Menu Id {}",menuId);
+        logger.info("set status {}",status);
+
         Optional<Menu> menuDetails = menuRepo.findById(menuId);
         if(menuDetails.isPresent()){
             Menu menu = menuDetails.get();
@@ -457,19 +492,25 @@ public class OutletServiceImp implements OutletService{
             }
             MenuPushToIRCTC menuPushToIRCTC = new MenuPushToIRCTC(menuPushList);
 
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            httpHeaders.add("Authorization",AuthToken);
-            Object response = this.restTemplate.exchange(
-                    EcateUrl+"api/v1/vendor/aggregator/station/"+stationCode+"/"+"outlet" +"/"+irctcOutletId,
-                    HttpMethod.POST,
-                    new HttpEntity<>(menuPushToIRCTC,httpHeaders),
-                    Object.class
-            ).getBody();
+            try{
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+                httpHeaders.add("Authorization",AuthToken);
+                String response = this.restTemplate.exchange(
+                        EcateUrl+"api/v1/vendor/aggregator/station/"+stationCode+"/"+"outlet" +"/"+irctcOutletId,
+                        HttpMethod.POST,
+                        new HttpEntity<>(menuPushToIRCTC,httpHeaders),
+                        String.class
+                ).getBody();
+                logger.info("push data : {}",response);
+                return new ResponseEntity<>(new ResponseDTO<>("success",null,"Menu status is updated successfully"),
+                        HttpStatus.OK);
+            }catch (HttpClientErrorException e){
+                logger.info("error response from IRCTC {}",e.getMessage());
+                return new ResponseEntity<>(new ResponseDTO<>("failure",e.getResponseBodyAsString(),null),
+                        HttpStatus.BAD_REQUEST);
 
-            logger.info("push data : {}",response);
-            return new ResponseEntity<>(new ResponseDTO<>("success",null,"Menu status is updated successfully"),
-                    HttpStatus.OK);
+            }
         }
         return new ResponseEntity<>(new ResponseDTO<>("failure","menu is not found",null),
                 HttpStatus.BAD_REQUEST);

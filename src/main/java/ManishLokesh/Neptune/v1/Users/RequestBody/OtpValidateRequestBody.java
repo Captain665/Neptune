@@ -13,6 +13,14 @@ public class OtpValidateRequestBody {
     @NotNull(message = "otp are not null")
     private String otp;
 
+    @Override
+    public String toString() {
+        return "OtpValidateRequestBody{" +
+                "mobileNumber='" + mobileNumber + '\'' +
+                ", otp='" + otp + '\'' +
+                '}';
+    }
+
     public String getMobileNumber() {
         return mobileNumber;
     }

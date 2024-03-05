@@ -21,6 +21,23 @@ public class OrderItems {
 
     private Double sellingPrice;
 
+    @Override
+    public String toString() {
+        return "OrderItems{" +
+                "id=" + id +
+                ", orderId='" + orderId + '\'' +
+                ", quantity=" + quantity +
+                ", basePrice=" + basePrice +
+                ", itemName='" + itemName + '\'' +
+                ", itemId=" + itemId +
+                ", description='" + description + '\'' +
+                ", tax=" + tax +
+                ", createdAt='" + createdAt + '\'' +
+                ", isVeg=" + isVeg +
+                ", sellingPrice=" + sellingPrice +
+                '}';
+    }
+
     public Boolean getVeg() {
         return isVeg;
     }

@@ -29,6 +29,22 @@ public class LoginResponse {
 
     }
 
+    @Override
+    public String toString() {
+        return "LoginResponse{" +
+                "id=" + id +
+                ", createdAt='" + createdAt + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", mobileNumber='" + mobileNumber + '\'' +
+                ", gender='" + gender + '\'' +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", lastLogin='" + lastLogin + '\'' +
+                ", jwt='" + jwt + '\'' +
+                ", role='" + role + '\'' +
+                '}';
+    }
+
     public String getRole() {
         return role;
     }
