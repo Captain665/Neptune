@@ -50,13 +50,15 @@ public class PNRServiceImp implements PNRservice{
                     new HttpEntity<>(httpHeaders),
                     String.class
             );
-            logger.info("response body get from IRCTC server {}",responseEntity.getBody());
+            logger.info("response body get from IRCTC {}",responseEntity.getBody());
 
             if(responseEntity.getStatusCode().is2xxSuccessful()){
                 String responseBody = responseEntity.getBody();
                 try {
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     JsonNode resultObject = jsonNode.get("result");
+                    JsonNode stationList = resultObject.get("stations");
+
 
                     logger.info("response {}", resultObject.toString());
 

@@ -30,6 +30,13 @@ public class Orders {
     private Double payable_amount;
     private Long IrctcOrderId;
 
+    public Orders(){};
+
+    public Orders(long id, String deliveryDate) {
+        this.id = id;
+        this.deliveryDate = deliveryDate;
+    }
+
     @Override
     public String toString() {
         return "Orders{" +

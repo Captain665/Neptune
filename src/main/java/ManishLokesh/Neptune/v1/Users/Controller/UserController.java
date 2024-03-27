@@ -4,7 +4,6 @@ import ManishLokesh.Neptune.v1.Users.RequestBody.LoginRequestBody;
 import ManishLokesh.Neptune.v1.Users.RequestBody.OtpValidateRequestBody;
 import ManishLokesh.Neptune.v1.Users.RequestBody.SignupRequestBody;
 import ManishLokesh.Neptune.v1.Users.Service.SignupService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -28,6 +28,35 @@ public class OrderResponseBody {
     private Object customerDetail;
 
 
+    @Override
+    public String toString() {
+        return "OrderResponseBody{" +
+                "id=" + id +
+                ", trainName='" + trainName + '\'' +
+                ", trainNo='" + trainNo + '\'' +
+                ", stationCode='" + stationCode + '\'' +
+                ", stationName='" + stationName + '\'' +
+                ", coach='" + coach + '\'' +
+                ", berth='" + berth + '\'' +
+                ", deliveryDate='" + deliveryDate + '\'' +
+                ", bookingDate='" + bookingDate + '\'' +
+                ", outletId='" + outletId + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", status='" + status + '\'' +
+                ", createdBy='" + createdBy + '\'' +
+                ", pnr='" + pnr + '\'' +
+                ", paymentType='" + paymentType + '\'' +
+                ", deliveryCharge=" + deliveryCharge +
+                ", orderFrom='" + orderFrom + '\'' +
+                ", totalAmount=" + totalAmount +
+                ", gst=" + gst +
+                ", payable_amount=" + payable_amount +
+                ", orderItems=" + orderItems +
+                ", outlets=" + outlets +
+                ", customerDetail=" + customerDetail +
+                '}';
+    }
+
     public OrderResponseBody(){
 
     }

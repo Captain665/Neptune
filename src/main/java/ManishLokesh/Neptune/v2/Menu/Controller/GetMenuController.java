@@ -29,9 +29,9 @@ public class GetMenuController {
     @GetMapping("api/v2/outlet/{outlet_Id}/menu")
     public ResponseEntity<ResponseDTO> getMenu(@PathVariable("outlet_Id") String outletId) {
         try{
-            Thread.sleep(2000);
             logger.info("menu calling");
             logger.info("outlet Id {}",outletId);
+//            Thread.sleep(5000);
             return this.service.getActiveMenu(outletId);
         }catch (Exception e){
             e.printStackTrace();

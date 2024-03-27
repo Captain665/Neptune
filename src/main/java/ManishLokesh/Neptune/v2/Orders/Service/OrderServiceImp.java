@@ -1,5 +1,6 @@
 package ManishLokesh.Neptune.v2.Orders.Service;
 
+import ManishLokesh.Neptune.ResponseDTO.Response;
 import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Menu;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Outlet;
@@ -10,27 +11,21 @@ import ManishLokesh.Neptune.v2.Orders.Entity.Orders;
 import ManishLokesh.Neptune.v2.Orders.Repository.OrderItemsRepository;
 import ManishLokesh.Neptune.v2.Orders.Repository.OrderRepository;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderItemRequest;
-import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderPushToIRCTC.CustomerInfo;
-import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderPushToIRCTC.OrderItemsInfo;
-import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderPushToIRCTC.OrderPushToIRCTC;
-import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderPushToIRCTC.OutletInfo;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderRequestBody;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
 import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderResponseBody;
 import ManishLokesh.Neptune.v2.customer.Entity.Customer;
 import ManishLokesh.Neptune.v2.customer.Repository.CustLoginRepo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
+
+import static ManishLokesh.Neptune.ResponseDTO.Response.ApiSuccess;
 import static java.util.concurrent.CompletableFuture.runAsync;
 
 import java.text.DecimalFormat;
@@ -40,9 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-import static java.util.concurrent.CompletableFuture.runAsync;
 
 
 @Service
@@ -66,6 +61,8 @@ public class OrderServiceImp implements OrderService {
     @Autowired
     public CustLoginRepo custLoginRepo;
 
+    public Response response;
+
 
     @Autowired
     public OrderServiceImp(OrderPush orderPushService) {
@@ -73,27 +70,23 @@ public class OrderServiceImp implements OrderService {
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> addOrder(OrderRequestBody orderRequestBody) {
+    public CompletionStage<ResponseEntity<ResponseDTO>> addOrder(OrderRequestBody orderRequestBody) {
 
         Object outletValid = outletRepo.findById(Long.parseLong(orderRequestBody.getOutletId()));
         logger.info("request body {} ", orderRequestBody.toString());
 
         if (((Optional<?>) outletValid).isEmpty()) {
-            return new ResponseEntity<>(
-                    new ResponseDTO("failure", "outlet is not present", null),
-                    HttpStatus.BAD_REQUEST);
+            return response.ApiFailure("outlet is not present");
         }
+
         Object customerData = custLoginRepo.findById(Long.parseLong(orderRequestBody.getCustomerId()));
+
         if (((Optional<?>) customerData).isEmpty()) {
-            return new ResponseEntity<>(
-                    new ResponseDTO("failure", "customer id is not present", null),
-                    HttpStatus.BAD_REQUEST);
+            return response.ApiFailure("customer id is not present");
         }
         List<OrderItemRequest> itemsList = orderRequestBody.getOrderItem();
         if (itemsList.isEmpty()) {
-            return new ResponseEntity<>(
-                    new ResponseDTO("failure", "Item list can not be empty", null),
-                    HttpStatus.BAD_REQUEST);
+            return response.ApiFailure("Item list can not be empty");
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -177,9 +170,12 @@ public class OrderServiceImp implements OrderService {
 
         runAsync(() -> orderPushService.OrderPushToIrctc(saveOrder));
 
-        return new ResponseEntity<>(
-                new ResponseDTO("success", null, orderResponseBody),
-                HttpStatus.CREATED);
+        logger.info("response body {}",orderResponseBody.toString());
+
+        return ApiSuccess(orderResponseBody);
+//                new ResponseEntity<>(
+//                new ResponseDTO("success", null, orderResponseBody),
+//                HttpStatus.CREATED);
     }
 
     @Override

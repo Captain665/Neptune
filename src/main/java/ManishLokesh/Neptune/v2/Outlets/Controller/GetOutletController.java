@@ -25,7 +25,7 @@ public class GetOutletController {
     @GetMapping("/api/v2/outlet/station/{stationCode}")
     public ResponseEntity<ResponseDTO> GetOutlet(@PathVariable String stationCode) {
         try{
-            Thread.sleep(2000);
+//            Thread.sleep(5000);
             return this.getOutletService.GetOutletAll(stationCode);
         }catch (Exception e){
             e.printStackTrace();

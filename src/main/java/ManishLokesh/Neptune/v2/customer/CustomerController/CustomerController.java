@@ -20,7 +20,7 @@ public class CustomerController {
     @PostMapping("/api/v2/auth/login")
     public ResponseEntity<ResponseDTO> CustomerLogin(@RequestBody CustoLoginRequestBody loginRequestBody){
         try{
-            Thread.sleep(2000);
+//            Thread.sleep(5000);
             return this.customerLoginService.CustomerAuthLogin(loginRequestBody);
         }catch (Exception e){
             e.printStackTrace();
@@ -31,7 +31,7 @@ public class CustomerController {
     @PostMapping("/api/v2/otp-validate")
     public ResponseEntity<ResponseDTO> valdateOtp(@RequestBody CustOtpValidateRequestBody otpValidateRequestBody){
         try{
-            Thread.sleep(2000);
+//            Thread.sleep(5000);
             return this.customerLoginService.CustoOtpValidate(otpValidateRequestBody);
         }catch (Exception e){
             e.printStackTrace();
@@ -41,7 +41,7 @@ public class CustomerController {
     @PostMapping("/api/v2/signup")
     public ResponseEntity<ResponseDTO> customerSignUp(@RequestBody CustoSignupRequestBody newCustomerSignup){
         try{
-            Thread.sleep(2000);
+//            Thread.sleep(5000);
             return this.customerLoginService.newCustomerSignUp(newCustomerSignup);
         }catch (Exception e){
             e.printStackTrace();
