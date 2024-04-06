@@ -12,6 +12,15 @@ public class ResponseDTO<T>{
         this.result = result;
     }
 
+    @Override
+    public String toString() {
+        return "ResponseDTO{" +
+                "status='" + status + '\'' +
+                ", error='" + error + '\'' +
+                ", result=" + result +
+                '}';
+    }
+
     public ResponseDTO(){
 
     }

@@ -25,6 +25,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 
+import static ManishLokesh.Neptune.ResponseDTO.Response.ApiFailure;
 import static ManishLokesh.Neptune.ResponseDTO.Response.ApiSuccess;
 import static java.util.concurrent.CompletableFuture.runAsync;
 
@@ -42,27 +43,22 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImp implements OrderService {
-
-
     @Autowired
     public MenuRepo menuRepo;
     @Autowired
     public OrderRepository orderRepository;
     @Autowired
     public OrderItemsRepository orderItemsRepository;
-
     @Autowired
     public OutletRepo outletRepo;
 
     public Logger logger = LoggerFactory.getLogger("app.v2.order.service");
-
     @Autowired
     private OrderPush orderPushService;
     @Autowired
     public CustLoginRepo custLoginRepo;
 
     public Response response;
-
 
     @Autowired
     public OrderServiceImp(OrderPush orderPushService) {
@@ -76,17 +72,20 @@ public class OrderServiceImp implements OrderService {
         logger.info("request body {} ", orderRequestBody.toString());
 
         if (((Optional<?>) outletValid).isEmpty()) {
-            return response.ApiFailure("outlet is not present");
+            logger.info("Response : outlet is not present");
+            return ApiFailure("outlet is not present");
         }
 
         Object customerData = custLoginRepo.findById(Long.parseLong(orderRequestBody.getCustomerId()));
 
         if (((Optional<?>) customerData).isEmpty()) {
-            return response.ApiFailure("customer id is not present");
+            logger.info("Response : customer id is not present");
+            return ApiFailure("customer id is not present");
         }
         List<OrderItemRequest> itemsList = orderRequestBody.getOrderItem();
         if (itemsList.isEmpty()) {
-            return response.ApiFailure("Item list can not be empty");
+            logger.info("Response : Item list can not be empty");
+            return ApiFailure("Item list can not be empty");
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -95,6 +94,10 @@ public class OrderServiceImp implements OrderService {
 
         List<Long> itemIds = itemsList.stream().map(OrderItemRequest::getItemId).filter(Objects::nonNull).collect(Collectors.toList());
         List<Menu> menuList = itemIds.stream().map(itemId -> menuRepo.findById(itemId)).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        if(menuList.isEmpty()){
+            logger.info("Response Item details is not correct, Please send correct details of selected items");
+            return ApiFailure("Item details is not correct, Please send correct details of selected items");
+        }
         List<OrderItems> orderItemsList = new ArrayList<>();
         Double subtotalPrice = 0.0;
         for (Menu menu : menuList) {
@@ -169,17 +172,13 @@ public class OrderServiceImp implements OrderService {
 
 
         runAsync(() -> orderPushService.OrderPushToIrctc(saveOrder));
-
         logger.info("response body {}",orderResponseBody.toString());
-
         return ApiSuccess(orderResponseBody);
-//                new ResponseEntity<>(
-//                new ResponseDTO("success", null, orderResponseBody),
-//                HttpStatus.CREATED);
     }
 
     @Override
     public ResponseEntity<ResponseDTO> getOrder(Long orderId, Long customerId) {
+        logger.info("requested order id - {}", orderId);
         Optional<Orders> orders = orderRepository.findById(orderId);
         Long customerDetail = Long.parseLong(orders.get().getCustomerId());
         if (!customerDetail.equals(customerId)) {
@@ -195,10 +194,13 @@ public class OrderServiceImp implements OrderService {
         Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
         Object customer = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
 
+
         OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getTotalAmount(), saveOrder.getGst(), saveOrder.getDeliveryCharge(),
                 saveOrder.getPayable_amount(), saveOrder.getDeliveryDate(), saveOrder.getBookingDate(), saveOrder.getPaymentType(), saveOrder.getStatus(),
                 saveOrder.getOutletId(), orderItems1, saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
                 saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(), saveOrder.getPnr(), saveOrder.getCreatedAt(), saveOrder.getCreatedBy(), outlet, customer);
+
+        logger.info("Response : {}",orderResponseBody.toString());
 
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBody),
                 HttpStatus.OK);
@@ -241,12 +243,15 @@ public class OrderServiceImp implements OrderService {
             orderResponseBodies.add(orderBody);
         }
 
+        logger.info("Response : {}",orderResponseBodies.toString());
+
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBodies),
                 HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<ResponseDTO> updateStatus(OrderStatusBody orderStatusBody, Long orderId) {
+        logger.info("Requested order status - "+ orderStatusBody.toString() + " Order id - "+ orderId);
         Optional<Orders> orders = orderRepository.findById(orderId);
         if (!orders.isPresent()) {
             return new ResponseEntity<>(new ResponseDTO<>("failure", "order is not found", null),
@@ -264,6 +269,7 @@ public class OrderServiceImp implements OrderService {
                 orders2.getOutletId(), orderItemsList, orders2.getTrainName(), orders2.getTrainNo(), orders2.getStationCode(), orders2.getStationName(),
                 orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(), orders2.getPnr(), orders2.getCreatedAt(), orders2.getCreatedBy(), outlet, customer);
 
+        logger.info("Reponse : {}",orderResponseBody.toString());
         return new ResponseEntity<>(new ResponseDTO<>("failure", null, orderResponseBody),
                 HttpStatus.OK);
     }

@@ -62,11 +62,7 @@ public class OutletServiceImp implements OutletService{
 
     @Override
     public ResponseEntity<ResponseDTO> CreateNewOutlet(CreateOutlet createOutlet) {
-
-        logger.info("api/v1/add/outlet  request json {}",createOutlet.toString());
-
-        logger.info("hlw working name is : {}", createOutlet.getOutletName());
-
+        logger.info("api/v1/add/outlet  request JSON {}",createOutlet.toString());
         Outlet outlet = new Outlet();
         outlet.setCreatedAt(LocalDate.now().toString());
         outlet.setStationCode(createOutlet.getStationCode());
@@ -94,7 +90,6 @@ public class OutletServiceImp implements OutletService{
         outlet.setIrctcOutletId(aggOutletId);
         outlet.setCreatedAt(LocalDateTime.now().toString());
         outlet.setTags(createOutlet.getTags());
-        logger.info("tags {}",createOutlet.getTags());
         Outlet o = outletRepo.saveAndFlush(outlet);
         List<OutletClosingRequest> ClosingRequestList = objectMapper.convertValue(createOutlet.getOutletClosing(), new TypeReference<>() {});
         List<OutletClosing> outletClosingList = new ArrayList<>();
@@ -114,7 +109,7 @@ public class OutletServiceImp implements OutletService{
                 o.getActive(),o.getCreatedAt(),storeClose,o.getUpdatedAt(),o.getLogoImage(),o.getEmailId(),
                 o.getMobileNo(),o.getStationCode(),o.getTags());
 
-        logger.info("response {}",createOutletResponse.toString());
+        logger.info("response JSON {}",createOutletResponse.toString());
 
         return new ResponseEntity<>(new ResponseDTO("success",null,createOutletResponse),
                 HttpStatus.CREATED);
@@ -388,11 +383,12 @@ public class OutletServiceImp implements OutletService{
 
     @Override
     public ResponseEntity<ResponseDTO> ActiveOutlet(Long outletId,Boolean status) {
-        logger.info("outlet Id {}",outletId);
-        logger.info("set status {}",status);
+        logger.info("requested outlet Id" + outletId + " status" + status);
         Optional<Outlet> outletDetails = outletRepo.findById(outletId);
-        logger.info("outlet in db {}",outletDetails.toString());
-        if(outletDetails.isPresent()){
+        if(outletDetails.isEmpty()){
+            return new ResponseEntity<>(new ResponseDTO<>("failure","Outlet is not found",null),
+                    HttpStatus.BAD_REQUEST);
+        }
             Outlet outlet = outletDetails.get();
             outlet.setActive(status);
             outlet.setUpdatedAt(LocalDateTime.now().toString());
@@ -426,7 +422,7 @@ public class OutletServiceImp implements OutletService{
                 pushOutlet.add(outlet2);
             }
             OutletsPushToIRCTC outletsPushToIRCTC = new OutletsPushToIRCTC(pushOutlet);
-            logger.info("outlet data push to irctc : [{}]",pushOutlet);
+            logger.info("IRCTC Requested JSON : [{}]",outletsPushToIRCTC);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             httpHeaders.add("Authorization",AuthToken);
@@ -438,25 +434,24 @@ public class OutletServiceImp implements OutletService{
                         new HttpEntity<>(outletsPushToIRCTC,httpHeaders),
                         String.class
                 ).getBody();
-                logger.info("testing : {}",response);
+                logger.info("IRCTC Response : {}",response);
             }catch (HttpServerErrorException e){
-                logger.info("expection error {}" , e.getMessage());
+                logger.info("Exception error : {}" , e.getResponseBodyAsString());
             }
 
             return new ResponseEntity<>(new ResponseDTO<>("success",null,"Outlet status is Updated Successfully"),
                     HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new ResponseDTO<>("failure","Outlet is not found",null),
-                HttpStatus.BAD_REQUEST);
     }
 
     @Override
     public ResponseEntity<ResponseDTO> ActiveMenu(Long menuId,Boolean status) {
-        logger.info("Menu Id {}",menuId);
-        logger.info("set status {}",status);
+        logger.info("Requested menu Id :" + menuId + " status : "+ status);
 
         Optional<Menu> menuDetails = menuRepo.findById(menuId);
-        if(menuDetails.isPresent()){
+        if(menuDetails.isEmpty()){
+            return new ResponseEntity<>(new ResponseDTO<>("failure","menu is not found",null),
+                    HttpStatus.BAD_REQUEST);
+        }
             Menu menu = menuDetails.get();
             menu.setActive(status);
             menu.setUpdatedAt(LocalDateTime.now().toString());
@@ -491,6 +486,7 @@ public class OutletServiceImp implements OutletService{
                 menuPushList.add(pushData);
             }
             MenuPushToIRCTC menuPushToIRCTC = new MenuPushToIRCTC(menuPushList);
+            logger.info("IRCTC requested JSON : {}",menuPushToIRCTC);
 
             try{
                 HttpHeaders httpHeaders = new HttpHeaders();
@@ -502,17 +498,14 @@ public class OutletServiceImp implements OutletService{
                         new HttpEntity<>(menuPushToIRCTC,httpHeaders),
                         String.class
                 ).getBody();
-                logger.info("push data : {}",response);
+                logger.info("IRCTC Response JSON : {}",response);
                 return new ResponseEntity<>(new ResponseDTO<>("success",null,"Menu status is updated successfully"),
                         HttpStatus.OK);
             }catch (HttpClientErrorException e){
                 logger.info("error response from IRCTC {}",e.getMessage());
                 return new ResponseEntity<>(new ResponseDTO<>("failure",e.getResponseBodyAsString(),null),
                         HttpStatus.BAD_REQUEST);
-
             }
         }
-        return new ResponseEntity<>(new ResponseDTO<>("failure","menu is not found",null),
-                HttpStatus.BAD_REQUEST);
-    }
+
 }
