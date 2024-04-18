@@ -209,6 +209,7 @@ public class OrderServiceImp implements OrderService {
     public ResponseEntity<ResponseDTO> getAllOrder(Long customerId) {
 //        List<Orders> ordersList = orderRepository.findAll();
         List<Orders> ordersList = orderRepository.findByCustomerId(String.valueOf(customerId));
+        logger.info("order list........... {}", ordersList.toString());
         List<OrderResponseBody> orderResponseBodies = new ArrayList<>();
         for (Orders orders : ordersList) {
             OrderResponseBody orderBody = new OrderResponseBody();
@@ -240,6 +241,7 @@ public class OrderServiceImp implements OrderService {
             orderBody.setOrderItems(orderItemsList);
             orderResponseBodies.add(orderBody);
         }
+
 
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBodies),
                 HttpStatus.OK);

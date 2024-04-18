@@ -6,6 +6,7 @@ import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +21,8 @@ public interface OrderRepository extends JpaRepository<Orders,Long> {
     public Orders saveAndFlush(Orders orders);
     public Optional<Orders> findById(Long orderId);
 
-    public List<Orders> findByCustomerId(String customerId);
+    @Query(value = "SELECT * from ORDERS o WHERE o.customer_id = :customerId ORDER BY created_at desc", nativeQuery = true)
+    public List<Orders> findByCustomerId(@Param("customerId") String customerId);
 
     @Query(value = "SELECT o.id, o.status, o.delivery_date, o.irctc_order_id FROM orders o WHERE o.`status` not IN ('DELIVERED','UNDELIVERED','PARTIALLY_DELIVERED','CANCELLED') AND o.delivery_date is not null AND o.irctc_order_id is not null", nativeQuery = true)
     public List<String> OrderStatus();
