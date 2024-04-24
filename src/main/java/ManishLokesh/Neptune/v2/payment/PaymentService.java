@@ -1,0 +1,1 @@
+package ManishLokesh.Neptune.v2.payment;import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;import org.springframework.http.ResponseEntity;import java.util.concurrent.CompletionStage;public interface PaymentService {    public CompletionStage<ResponseEntity<ResponseDTO>> getPaymentMethodsDetail();}

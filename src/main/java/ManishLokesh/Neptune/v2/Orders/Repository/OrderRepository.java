@@ -24,6 +24,7 @@ public interface OrderRepository extends JpaRepository<Orders,Long> {
     @Query(value = "SELECT * from ORDERS o WHERE o.customer_id = :customerId ORDER BY created_at desc", nativeQuery = true)
     public List<Orders> findByCustomerId(@Param("customerId") String customerId);
 
+
     @Query(value = "SELECT o.id, o.status, o.delivery_date, o.irctc_order_id FROM orders o WHERE o.`status` not IN ('DELIVERED','UNDELIVERED','PARTIALLY_DELIVERED','CANCELLED') AND o.delivery_date is not null AND o.irctc_order_id is not null", nativeQuery = true)
     public List<String> OrderStatus();
 

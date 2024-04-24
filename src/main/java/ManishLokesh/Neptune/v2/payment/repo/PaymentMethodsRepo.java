@@ -1,0 +1,1 @@
+package ManishLokesh.Neptune.v2.payment.repo;import ManishLokesh.Neptune.v2.payment.PaymentMethods;import org.springframework.data.jpa.repository.JpaRepository;import org.springframework.stereotype.Repository;import java.util.List;@Repositorypublic interface PaymentMethodsRepo extends JpaRepository<PaymentMethods, Long> {    public List<PaymentMethods> findAll();}
