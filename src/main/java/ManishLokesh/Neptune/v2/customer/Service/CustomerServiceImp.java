@@ -91,7 +91,7 @@ public class CustomerServiceImp implements CustomerService {
             Customer already = loginRepo.findByMobileNumber(requestBody.getMobileNumber());
             if(already != null){
                 return new ResponseEntity<>(new ResponseDTO("failure",
-                        "Mobile number already exist, Please try with another Mobile Number",
+                        "Mobile number has already registered, Please signup",
                         null
                 ), HttpStatus.BAD_REQUEST);
             }else{
@@ -144,7 +144,7 @@ public class CustomerServiceImp implements CustomerService {
         }else{
             if(!Objects.equals(signup.getOtp(), validateRequestBody.getOtp())){
                 return new ResponseEntity<>(new ResponseDTO("failure",
-                        "Incorrect OTP value",null)
+                        "Incorrect OTP, Please entry correct OTP",null)
                         , HttpStatus.BAD_REQUEST);
             }else{
                 Customer login = custLoginRepo.findByMobileNumber(validateRequestBody.getMobileNumber());

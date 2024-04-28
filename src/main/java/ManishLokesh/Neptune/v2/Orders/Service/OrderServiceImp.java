@@ -181,15 +181,17 @@ public class OrderServiceImp implements OrderService {
     @Override
     public ResponseEntity<ResponseDTO> getOrder(Long orderId, Long customerId) {
         Optional<Orders> orders = orderRepository.findById(orderId);
+        if (orders.isEmpty()) {
+            return new ResponseEntity<>(new ResponseDTO<>("failure", "Order not found, Please Enter correct order Id", null),
+                    HttpStatus.BAD_REQUEST);
+        }
+
         Long customerDetail = Long.parseLong(orders.get().getCustomerId());
         if (!customerDetail.equals(customerId)) {
             return new ResponseEntity<>(new ResponseDTO<>("failure", "Not Authorize to Access", null),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (orders.isEmpty()) {
-            return new ResponseEntity<>(new ResponseDTO<>("failure", "Incorrect order Id", null),
-                    HttpStatus.BAD_REQUEST);
-        }
+
         Orders saveOrder = orders.get();
         List<OrderItems> orderItems1 = orderItemsRepository.findByOrderId(String.valueOf(orderId));
         Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
