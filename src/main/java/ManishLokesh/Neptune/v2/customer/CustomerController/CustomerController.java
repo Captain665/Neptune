@@ -25,14 +25,14 @@ public class CustomerController {
 
     @PostMapping("/api/v2/auth/login")
     public ResponseEntity<ResponseDTO> CustomerLogin(@Valid @RequestBody CustoLoginRequestBody loginRequestBody){
-        try{
+//        try{
 //            Thread.sleep(5000);
             return this.customerLoginService.CustomerAuthLogin(loginRequestBody);
-        }catch (Exception e){
-            e.printStackTrace();
-            logger.info(e.getLocalizedMessage());
-        }
-        return null;
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            logger.info(e.getLocalizedMessage());
+//        }
+//        return null;
     }
 
     @PostMapping("/api/v2/otp-validate")
