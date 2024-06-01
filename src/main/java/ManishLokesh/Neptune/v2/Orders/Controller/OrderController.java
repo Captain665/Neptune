@@ -7,6 +7,8 @@ import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderRequestBody;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
 import ManishLokesh.Neptune.v2.Orders.Service.OrderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,7 +20,7 @@ import javax.annotation.security.RolesAllowed;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
-import static ManishLokesh.Neptune.ResponseDTO.Response.ApiUnauthorized;
+import static ManishLokesh.Neptune.ResponseDTO.Response.*;
 
 @Controller
 public class OrderController {
@@ -28,6 +30,9 @@ public class OrderController {
 
     @Autowired
     public JwtUtil jwtUtil;
+    public Response response;
+
+    public final Logger logger = LoggerFactory.getLogger("Status.Update.On.IRCTC");
 
 
     @PostMapping("/api/v2/create/order")
@@ -76,18 +81,19 @@ public class OrderController {
     }
 
     @PostMapping("/api/v2/order/{orderId}/status")
-    public ResponseEntity<ResponseDTO> statusUpdate(@RequestBody OrderStatusBody orderStatusBody, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth, @PathVariable String orderId) {
+    public CompletionStage<ResponseEntity<ResponseDTO>> statusUpdate(@RequestBody OrderStatusBody orderStatusBody, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth, @PathVariable String orderId) {
         String token = auth.replace("Bearer", "");
         if (Objects.equals(jwtUtil.validateRole(token), "CUSTOMER")) {
             try {
 //                Thread.sleep(5000);
                 return this.service.updateStatus(orderStatusBody, Long.parseLong(orderId));
             } catch (Exception e) {
+                logger.info("exception msg {}",e.getMessage());
                 e.printStackTrace();
             }
-            return null;
+            return response.ApiFailure("Something went wrong, Please try again later");
         }
-        return new ResponseEntity<>(new ResponseDTO<>("failure", "Not authorize to Access", null), HttpStatus.UNAUTHORIZED);
+        return ApiUnauthorized();
 
     }
 }

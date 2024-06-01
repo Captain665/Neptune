@@ -14,6 +14,6 @@ public interface OrderService {
     public ResponseEntity<ResponseDTO> getOrder(Long orderId, Long customerId);
 
     public ResponseEntity<ResponseDTO> getAllOrder(Long customerId);
-    public ResponseEntity<ResponseDTO> updateStatus(OrderStatusBody orderStatusBody,Long orderId);
+    public CompletionStage<ResponseEntity<ResponseDTO>> updateStatus(OrderStatusBody orderStatusBody,Long orderId);
 
 }

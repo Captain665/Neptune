@@ -1,7 +1,9 @@
 package ManishLokesh.Neptune.v2.Orders.Service;
 
+import ManishLokesh.Neptune.PushToIRCTC.OrderStatus;
 import ManishLokesh.Neptune.ResponseDTO.Response;
 import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Scheduler.Order.OrderStatusUpdate;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Menu;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Outlet;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Repository.MenuRepo;
@@ -17,6 +19,9 @@ import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderResponseBody;
 import ManishLokesh.Neptune.v2.customer.Entity.Customer;
 import ManishLokesh.Neptune.v2.customer.Repository.CustLoginRepo;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,24 +30,20 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 
+import static ManishLokesh.Neptune.ResponseDTO.Response.ApiFailure;
 import static ManishLokesh.Neptune.ResponseDTO.Response.ApiSuccess;
 import static java.util.concurrent.CompletableFuture.runAsync;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 
-
 @Service
 public class OrderServiceImp implements OrderService {
-
 
     @Autowired
     public MenuRepo menuRepo;
@@ -50,23 +51,23 @@ public class OrderServiceImp implements OrderService {
     public OrderRepository orderRepository;
     @Autowired
     public OrderItemsRepository orderItemsRepository;
-
     @Autowired
     public OutletRepo outletRepo;
-
     public Logger logger = LoggerFactory.getLogger("app.v2.order.service");
-
     @Autowired
     private OrderPush orderPushService;
     @Autowired
     public CustLoginRepo custLoginRepo;
-
     public Response response;
+    @Autowired
+    public OrderStatus orderStatus;
 
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public OrderServiceImp(OrderPush orderPushService) {
+    public OrderServiceImp(OrderPush orderPushService, ObjectMapper objectMapper) {
         this.orderPushService = orderPushService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -76,17 +77,17 @@ public class OrderServiceImp implements OrderService {
         logger.info("request body {} ", orderRequestBody.toString());
 
         if (((Optional<?>) outletValid).isEmpty()) {
-            return response.ApiFailure("outlet is not present");
+            return ApiFailure("outlet is not present");
         }
 
         Object customerData = custLoginRepo.findById(Long.parseLong(orderRequestBody.getCustomerId()));
 
         if (((Optional<?>) customerData).isEmpty()) {
-            return response.ApiFailure("customer id is not present");
+            return ApiFailure("customer id is not present");
         }
         List<OrderItemRequest> itemsList = orderRequestBody.getOrderItem();
         if (itemsList.isEmpty()) {
-            return response.ApiFailure("Item list can not be empty");
+            return ApiFailure("Item list can not be empty");
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -119,7 +120,6 @@ public class OrderServiceImp implements OrderService {
             Double sellingPrice = Double.valueOf(df.format(itemWiseBasePrice + tax));
             orderItems.setSellingPrice(sellingPrice);
             orderItemsList.add(orderItems);
-
         }
 
         Orders orders = new Orders();
@@ -170,12 +170,9 @@ public class OrderServiceImp implements OrderService {
 
         runAsync(() -> orderPushService.OrderPushToIrctc(saveOrder));
 
-        logger.info("response body {}",orderResponseBody.toString());
+        logger.info("response body {}", orderResponseBody.toString());
 
         return ApiSuccess(orderResponseBody);
-//                new ResponseEntity<>(
-//                new ResponseDTO("success", null, orderResponseBody),
-//                HttpStatus.CREATED);
     }
 
     @Override
@@ -209,7 +206,7 @@ public class OrderServiceImp implements OrderService {
 
     @Override
     public ResponseEntity<ResponseDTO> getAllOrder(Long customerId) {
-//        List<Orders> ordersList = orderRepository.findAll();
+
         List<Orders> ordersList = orderRepository.findByCustomerId(String.valueOf(customerId));
         logger.info("order list........... {}", ordersList.toString());
         List<OrderResponseBody> orderResponseBodies = new ArrayList<>();
@@ -244,31 +241,67 @@ public class OrderServiceImp implements OrderService {
             orderResponseBodies.add(orderBody);
         }
 
-
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBodies),
                 HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> updateStatus(OrderStatusBody orderStatusBody, Long orderId) {
-        Optional<Orders> orders = orderRepository.findById(orderId);
-        if (!orders.isPresent()) {
-            return new ResponseEntity<>(new ResponseDTO<>("failure", "order is not found", null),
-                    HttpStatus.BAD_REQUEST);
+    public CompletionStage<ResponseEntity<ResponseDTO>> updateStatus(OrderStatusBody orderStatusBody, Long orderId) {
+        try {
+            logger.info("Order Id " + orderId + " Order status" + orderStatusBody.toString());
+            Optional<Orders> orders = orderRepository.findById(orderId);
+            if (orders.isEmpty()) {
+                logger.info("order is not found");
+                return ApiFailure("order is not found");
+            }
+            Orders orders1 = orders.get();
+            List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orderId));
+            Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders1.getOutletId())));
+            Object customer = custLoginRepo.findById(Long.parseLong(orders1.getCustomerId()));
+
+            if (Objects.equals(orders1.getStatus(), "CANCELLED")) {
+                logger.info("Order already marked as cancelled");
+                return ApiFailure("Order already marked as cancelled");
+            }
+            Map<String, Object> status = new HashMap<>();
+
+            status.put("status", "ORDER_" + orderStatusBody.getStatus());
+
+            if (Objects.equals(orderStatusBody.getStatus(), "CANCELLED")) {
+                status.put("remarks", "PASSENGER_JOURNEY_CANCELLED");
+            } else if (Objects.equals(orderStatusBody.getStatus(), "UNDELIVERED")) {
+                status.put("remarks", "VENDOR_INABILITY");
+            }
+
+            long irctcOrderId = orders.get().getIrctcOrderId();
+            String response = orderStatus.StatusPushToIrctc(status, irctcOrderId);
+
+            JsonNode jsonNode = objectMapper.readTree(response);
+            JsonNode orderStatus = jsonNode.get("status");
+
+            if (Objects.equals(orderStatus.asText(), "success")) {
+                JsonNode resultObject = jsonNode.get("result");
+                JsonNode responseStatus = resultObject.get("status");
+
+                if (Objects.equals(responseStatus.asText(), "ORDER_" + orderStatusBody.getStatus())) {
+                    orders1.setStatus(orderStatusBody.getStatus());
+                }
+            } else {
+                JsonNode msg = jsonNode.get("message");
+                return ApiFailure(msg.asText());
+            }
+
+            Orders orders2 = orderRepository.save(orders1);
+
+            OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(), orders2.getTotalAmount(), orders2.getGst(), orders2.getDeliveryCharge(),
+                    orders2.getPayable_amount(), orders2.getDeliveryDate(), orders2.getBookingDate(), orders2.getPaymentType(), orders2.getStatus(),
+                    orders2.getOutletId(), orderItemsList, orders2.getTrainName(), orders2.getTrainNo(), orders2.getStationCode(), orders2.getStationName(),
+                    orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(), orders2.getPnr(), orders2.getCreatedAt(), orders2.getCreatedBy(), outlet, customer);
+
+            return ApiSuccess(orderResponseBody);
+        } catch (Exception e) {
+            return ApiFailure(e.getMessage());
         }
-        Orders orders1 = orders.get();
-        orders1.setStatus(orderStatusBody.getStatus());
-        Orders orders2 = orderRepository.save(orders1);
-        List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orderId));
-        Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders1.getOutletId())));
-        Object customer = custLoginRepo.findById(Long.parseLong(orders1.getCustomerId()));
 
-        OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(), orders2.getTotalAmount(), orders2.getGst(), orders2.getDeliveryCharge(),
-                orders2.getPayable_amount(), orders2.getDeliveryDate(), orders2.getBookingDate(), orders2.getPaymentType(), orders2.getStatus(),
-                orders2.getOutletId(), orderItemsList, orders2.getTrainName(), orders2.getTrainNo(), orders2.getStationCode(), orders2.getStationName(),
-                orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(), orders2.getPnr(), orders2.getCreatedAt(), orders2.getCreatedBy(), outlet, customer);
-
-        return new ResponseEntity<>(new ResponseDTO<>("failure", null, orderResponseBody),
-                HttpStatus.OK);
     }
 }
