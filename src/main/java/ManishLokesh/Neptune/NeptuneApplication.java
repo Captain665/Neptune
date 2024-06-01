@@ -6,7 +6,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@ComponentScan({"ManishLokesh.Neptune.v1","ManishLokesh.Neptune.v2","ManishLokesh.Neptune.AuthController","ManishLokesh.Neptune.v2","ManishLokesh.Neptune.EmailTrigger","ManishLokesh.Neptune.Scheduler"})
+@ComponentScan({"ManishLokesh.Neptune.v1",
+		"ManishLokesh.Neptune.v2","ManishLokesh.Neptune.AuthController",
+		"ManishLokesh.Neptune.v2","ManishLokesh.Neptune.EmailTrigger",
+		"ManishLokesh.Neptune.Scheduler", "ManishLokesh.Neptune.PushToIRCTC"})
 @EnableScheduling
 public class NeptuneApplication {
 
