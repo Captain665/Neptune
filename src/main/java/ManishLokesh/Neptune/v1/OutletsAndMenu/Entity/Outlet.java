@@ -287,4 +287,6 @@ public class Outlet {
     public void setTags(String tags) {
         this.tags = tags;
     }
+
+
 }

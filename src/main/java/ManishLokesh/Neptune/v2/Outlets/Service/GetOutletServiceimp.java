@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,12 +30,25 @@ public class GetOutletServiceimp implements GetOutletService{
 
         List<Outlet> outletList = outletRepo.findByStationCode(stationCode);
         List<Outlet> activeOutlets = outletList.stream().filter(Outlet::getActive).collect(Collectors.toList());
-        logger.info("outlet data {}", activeOutlets.stream().collect(Collectors.toList()));
+        List<OutletResponse> listOfOutlets =  new ArrayList<>();
+
         for (Outlet outlet : activeOutlets){
-            logger.info("active outlets id {}", outlet.getId());
+            OutletResponse outletResponse = new OutletResponse();
+            outletResponse.setId(outlet.getId());
+            outletResponse.setOutletName(outlet.getOutletName());
+            outletResponse.setMinOrderValue(outlet.getMinOrderValue());
+            outletResponse.setOrderTiming(outlet.getOrderTiming());
+            outletResponse.setDeliveryCost(outlet.getDeliveryCost());
+            outletResponse.setPrepaid(outlet.getPrepaid());
+            outletResponse.setLogoImage(outlet.getLogoImage());
+            outletResponse.setTags(outlet.getTags());
+            outletResponse.setRatingCount(outlet.getRatingCount());
+            outletResponse.setRatingValue(outlet.getRatingValue());
+            listOfOutlets.add(outletResponse);
         }
+        logger.info("Outlet Response {}",listOfOutlets.toString());
 
         return new ResponseEntity<>(
-                new ResponseDTO("success",null,activeOutlets), HttpStatus.OK);
+                new ResponseDTO("success",null,listOfOutlets), HttpStatus.OK);
     }
 }
