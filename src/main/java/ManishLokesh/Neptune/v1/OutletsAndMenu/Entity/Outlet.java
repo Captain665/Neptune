@@ -1,6 +1,6 @@
 package ManishLokesh.Neptune.v1.OutletsAndMenu.Entity;
 
-import org.hibernate.mapping.List;
+import java.util.List;
 
 import javax.persistence.*;
 
@@ -31,7 +31,8 @@ public class Outlet {
     private String logoImage;
     private String emailId;
     private String mobileNo;
-    private String stationCode;
+    @ElementCollection
+    private List<String> stationCode;
     private Integer ratingCount;
     private Double ratingValue;
     private String irctcOutletId;
@@ -255,11 +256,11 @@ public class Outlet {
         this.mobileNo = mobileNo;
     }
 
-    public String getStationCode() {
+    public List<String> getStationCode() {
         return stationCode;
     }
 
-    public void setStationCode(String stationCode) {
+    public void setStationCode(List<String> stationCode) {
         this.stationCode = stationCode;
     }
 

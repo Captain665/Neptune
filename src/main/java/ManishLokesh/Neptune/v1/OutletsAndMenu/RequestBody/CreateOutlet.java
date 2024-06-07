@@ -1,10 +1,13 @@
 package ManishLokesh.Neptune.v1.OutletsAndMenu.RequestBody;
 
+import org.json.simple.JSONArray;
+
+import javax.persistence.ElementCollection;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CreateOutlet {
-    private String stationCode;
+    private List<String> stationCode;
     private String outletName;
     private Long minOrderValue;
     private Integer orderTiming;
@@ -57,11 +60,11 @@ public class CreateOutlet {
                 '}';
     }
 
-    public String getStationCode() {
+    public List<String> getStationCode() {
         return stationCode;
     }
 
-    public void setStationCode(String stationCode) {
+    public void setStationCode(List<String> stationCode) {
         this.stationCode = stationCode;
     }
 

@@ -69,6 +69,8 @@ public class OutletServiceImp implements OutletService{
 
         Outlet outlet = new Outlet();
         outlet.setCreatedAt(LocalDate.now().toString());
+        List<String> stations = new ArrayList<>(createOutlet.getStationCode());
+//        outlet.setStationCode(createOutlet.getStationCode());
         outlet.setStationCode(createOutlet.getStationCode());
         outlet.setOutletName(createOutlet.getOutletName());
         outlet.setMinOrderValue(createOutlet.getMinOrderValue());
@@ -173,7 +175,7 @@ public class OutletServiceImp implements OutletService{
                     o.getActive(),o.getCreatedAt(),savedClosing,o.getUpdatedAt(),o.getLogoImage(),o.getEmailId(),
                     o.getMobileNo(),o.getStationCode(),o.getTags());
 
-            List<Outlet> allTheOutlet = outletRepo.findByStationCode(o.getStationCode());
+            List<Outlet> allTheOutlet = outletRepo.findByStationCode(o.getStationCode().get(0));
             List<Outlet> activeOutletList = allTheOutlet.stream().filter(Outlet :: getActive).collect(Collectors.toList());
 
             List<outletPushRequestBody> pushOutlet = new ArrayList<>();
@@ -206,7 +208,7 @@ public class OutletServiceImp implements OutletService{
                 HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.setContentType(MediaType.APPLICATION_JSON);
                 httpHeaders.add("Authorization",AuthToken);
-                String stationCode = o.getStationCode();
+                String stationCode = o.getStationCode().get(0);
                 String response = this.restTemplate.exchange(
                         EcateUrl+"api/v1/vendor/aggregator/outlets/"+stationCode,
                         HttpMethod.POST,
@@ -331,7 +333,7 @@ public class OutletServiceImp implements OutletService{
                         logger.info("outlet response {}",outlet1);
                         Outlet o = outlet1.get();
                         logger.info("id is, {}",o);
-                        String stationCode = o.getStationCode();
+                        String stationCode = o.getStationCode().get(0);
                         String irctcOutletId = o.getIrctcOutletId();
 
                         List<Menu> menuList = menuRepo.findByOutletId(m.getOutletId());
@@ -398,7 +400,7 @@ public class OutletServiceImp implements OutletService{
             outlet.setUpdatedAt(LocalDateTime.now().toString());
             Outlet o = outletRepo.save(outlet);
 
-            List<Outlet> allTheOutlet = outletRepo.findByStationCode(o.getStationCode());
+            List<Outlet> allTheOutlet = outletRepo.findByStationCode(o.getStationCode().get(0));
             List<Outlet> activeOutletList = allTheOutlet.stream().filter(Outlet :: getActive).collect(Collectors.toList());
 
             List<outletPushRequestBody> pushOutlet = new ArrayList<>();
@@ -430,7 +432,7 @@ public class OutletServiceImp implements OutletService{
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             httpHeaders.add("Authorization",AuthToken);
-            String stationCode = o.getStationCode();
+            String stationCode = o.getStationCode().get(0);
             try{
                 String response = this.restTemplate.exchange(
                         EcateUrl+"api/v1/vendor/aggregator/outlets/"+stationCode,
@@ -465,7 +467,7 @@ public class OutletServiceImp implements OutletService{
             Long outletId = Long.parseLong(m.getOutletId());
             Optional<Outlet> outlet = outletRepo.findById(outletId);
             Outlet o = outlet.get();
-            String stationCode = o.getStationCode();
+            String stationCode = o.getStationCode().get(0);
             String irctcOutletId = o.getIrctcOutletId();
 
             List<Menu> menuList = menuRepo.findByOutletId(m.getOutletId());
