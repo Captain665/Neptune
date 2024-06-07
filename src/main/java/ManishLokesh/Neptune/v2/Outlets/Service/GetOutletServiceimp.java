@@ -29,6 +29,10 @@ public class GetOutletServiceimp implements GetOutletService{
     public ResponseEntity<ResponseDTO> GetOutletAll(String stationCode) {
 
         List<Outlet> outletList = outletRepo.findByStationCode(stationCode);
+        if(outletList.isEmpty()){
+            return new ResponseEntity<>(
+                    new ResponseDTO("failure","Currently we are not serving on this station",null), HttpStatus.BAD_REQUEST);
+        }
         List<Outlet> activeOutlets = outletList.stream().filter(Outlet::getActive).collect(Collectors.toList());
         List<OutletResponse> listOfOutlets =  new ArrayList<>();
 
@@ -44,6 +48,7 @@ public class GetOutletServiceimp implements GetOutletService{
             outletResponse.setTags(outlet.getTags());
             outletResponse.setRatingCount(outlet.getRatingCount());
             outletResponse.setRatingValue(outlet.getRatingValue());
+            outletResponse.setStationCode(stationCode);
             listOfOutlets.add(outletResponse);
         }
         logger.info("Outlet Response {}",listOfOutlets.toString());
