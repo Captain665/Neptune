@@ -21,6 +21,10 @@ public class CustLoginResponseBody {
         this.gender = gender;
     }
 
+    public CustLoginResponseBody(){
+
+    }
+
 
     public Long getId() {
         return id;

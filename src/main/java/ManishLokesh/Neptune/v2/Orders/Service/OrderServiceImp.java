@@ -15,10 +15,16 @@ import ManishLokesh.Neptune.v2.Orders.Repository.OrderRepository;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderItemRequest;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderRequestBody;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
+import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderCustomerResponse;
+import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderItemResponse;
+import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderOutletResponse;
 import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderResponseBody;
+import ManishLokesh.Neptune.v2.Outlets.OutletResponse.OutletResponse;
 import ManishLokesh.Neptune.v2.customer.Entity.Customer;
 import ManishLokesh.Neptune.v2.customer.Repository.CustLoginRepo;
 
+import ManishLokesh.Neptune.v2.customer.RequestBody.CustoLoginRequestBody;
+import ManishLokesh.Neptune.v2.customer.ResponseBody.CustLoginResponseBody;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -190,14 +196,19 @@ public class OrderServiceImp implements OrderService {
         }
 
         Orders saveOrder = orders.get();
-        List<OrderItems> orderItems1 = orderItemsRepository.findByOrderId(String.valueOf(orderId));
-        Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
-        Object customer = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
+        List<OrderItemResponse> orderItems = orderItemModel(orderItemsRepository.findByOrderId(
+                String.valueOf(orderId)));
+        OrderCustomerResponse orderCustomerResponse = customerModel(custLoginRepo.findByCustomerId(
+                Long.parseLong(saveOrder.getCustomerId())));
+
+        OrderOutletResponse orderOutletResponse = outletModel(outletRepo.findByOutletId(
+                Long.parseLong(saveOrder.getOutletId())));
+
 
         OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getTotalAmount(), saveOrder.getGst(), saveOrder.getDeliveryCharge(),
                 saveOrder.getPayable_amount(), saveOrder.getDeliveryDate(), saveOrder.getBookingDate(), saveOrder.getPaymentType(), saveOrder.getStatus(),
-                saveOrder.getOutletId(), orderItems1, saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
-                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(), saveOrder.getPnr(), saveOrder.getCreatedAt(), saveOrder.getCreatedBy(), outlet, customer);
+                saveOrder.getOutletId(), orderItems , saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
+                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(), saveOrder.getPnr(), saveOrder.getCreatedAt(), saveOrder.getCreatedBy(), orderOutletResponse, orderCustomerResponse);
 
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBody),
                 HttpStatus.OK);
@@ -303,5 +314,40 @@ public class OrderServiceImp implements OrderService {
             return ApiFailure(e.getMessage());
         }
 
+    }
+
+    public OrderCustomerResponse customerModel(Customer customerData) {
+        OrderCustomerResponse custBody = new OrderCustomerResponse();
+        custBody.setMobileNumber(customerData.getMobileNumber());
+        custBody.setEmailId(customerData.getEmailId());
+        custBody.setId(customerData.getId());
+        custBody.setFullName(customerData.getFullName());
+        return custBody;
+    }
+
+    public OrderOutletResponse outletModel(Outlet outlet) {
+        OrderOutletResponse outletResponse = new OrderOutletResponse();
+        outletResponse.setId(outlet.getId());
+        outletResponse.setOutletName(outlet.getOutletName());
+        outletResponse.setCity(outlet.getCity());
+        outletResponse.setFssaiNo(outlet.getFssaiNo());
+        outletResponse.setMobileNo(outlet.getMobileNo());
+        return outletResponse;
+    }
+
+    public List<OrderItemResponse> orderItemModel(List<OrderItems> orderItems) {
+        List<OrderItemResponse> itemResponses = new ArrayList<>();
+
+        for(OrderItems orderItems1 : orderItems){
+            OrderItemResponse orderItemResponse = new OrderItemResponse();
+            orderItemResponse.setId(orderItems1.getId());
+            orderItemResponse.setItemName(orderItems1.getItemName());
+            orderItemResponse.setDescription(orderItems1.getDescription());
+            orderItemResponse.setBasePrice(orderItems1.getBasePrice());
+            orderItemResponse.setQuantity(orderItems1.getQuantity());
+            orderItemResponse.setVeg(orderItems1.getVeg());
+            itemResponses.add(orderItemResponse);
+        }
+        return itemResponses;
     }
 }

@@ -124,7 +124,6 @@ public class PNRServiceImp implements PNRservice {
             stationResponse1.setDeparture(departure);
             stationResponse1.setDepDate(depDate);
 
-
             DateTimeFormatter dateForMatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate currentDate = LocalDate.parse(LocalDate.now().format(dateForMatter),dateForMatter);
             LocalDate departureDate = LocalDate.parse(depDate, dateForMatter);
