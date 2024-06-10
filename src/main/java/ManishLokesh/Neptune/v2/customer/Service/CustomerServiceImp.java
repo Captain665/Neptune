@@ -28,21 +28,16 @@ import static java.util.concurrent.CompletableFuture.runAsync;
 @Service
 public class CustomerServiceImp implements CustomerService {
 
-
     @Autowired
     public CustLoginRepo custLoginRepo;
     @Autowired
     public CustSignupRepo signupRepo;
     @Autowired
     public CustSignupRepo custSignupRepo;
-
     public JwtUtil jwtUtil = new JwtUtil();
-
     @Autowired
     public CustLoginRepo loginRepo;
-
     public SendSignupOTP sendSignupOTP = new SendSignupOTP();
-
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private Logger logger = LoggerFactory.getLogger("app.v2.customer.service");
 
@@ -60,9 +55,8 @@ public class CustomerServiceImp implements CustomerService {
                     String token = jwtUtil.generateToken(login.getRole(),login.getId());
 
                     CustLoginResponseBody responseBody = new CustLoginResponseBody(login.getId(),
-                            login.getFullName(),login.getCreatedAt(),loginRequestBody.getMobileNumber(),
-                            login.getEmailId(),token,login.getGender(),login.getUpdatedAt(),login.getLastLogin(),
-                            login.getRole(),login.getPassword());
+                            login.getFullName(),login.getMobileNumber(),
+                            login.getEmailId(),token,login.getGender());
                     return new ResponseEntity<>(new ResponseDTO("success",null,responseBody),
                             HttpStatus.OK);
                 }else{
@@ -162,8 +156,7 @@ public class CustomerServiceImp implements CustomerService {
                     Customer login1 = custLoginRepo.saveAndFlush(customerLogin);
                     String token = jwtUtil.generateToken(login1.getRole(), login1.getId());
                     CustOtpValidateResponseBody custOtpValidateResponseBody = new CustOtpValidateResponseBody(login1.getId(),
-                            login1.getCreatedAt(),login1.getFullName(),login1.getEmailId(),login1.getMobileNumber(),login1.getGender(),
-                            login1.getUpdatedAt(),token,role,login1.getPassword());
+                            login1.getFullName(),login1.getEmailId(),login1.getMobileNumber(),login1.getGender(),token);
                     return new ResponseEntity<>(new ResponseDTO("success",null,custOtpValidateResponseBody)
                             ,HttpStatus.CREATED);
                 }else{

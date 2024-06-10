@@ -4,33 +4,23 @@ public class CustLoginResponseBody {
 
     private Long id;
     private String fullName;
-    private String createdAt;
     private String mobileNumber;
     private String emailId;
     private String jwt;
     private String gender;
-    private String updatedAt;
-    private String lastLogin;
-    private String role;
-
-    private String password;
 
 
-    public CustLoginResponseBody(Long id, String fullName, String createdAt, String mobileNumber,
-                                 String emailId, String jwt, String gender, String updatedAt, String lastLogin,
-                                 String role, String password){
+
+    public CustLoginResponseBody(Long id, String fullName, String mobileNumber,
+                                 String emailId, String jwt, String gender){
         this.id = id;
         this.fullName = fullName;
-        this.createdAt = createdAt;
         this.mobileNumber = mobileNumber;
         this.emailId = emailId;
         this.jwt = jwt;
         this.gender = gender;
-        this.updatedAt = updatedAt;
-        this.lastLogin = lastLogin;
-        this.role = role;
-        this.password = password;
     }
+
 
     public Long getId() {
         return id;
@@ -46,14 +36,6 @@ public class CustLoginResponseBody {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
     }
 
     public String getMobileNumber() {
@@ -87,36 +69,4 @@ public class CustLoginResponseBody {
     public void setGender(String gender) {
         this.gender = gender;
     }
-
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public String getLastLogin() {
-        return lastLogin;
-    }
-
-    public void setLastLogin(String lastLogin) {
-        this.lastLogin = lastLogin;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
 }
