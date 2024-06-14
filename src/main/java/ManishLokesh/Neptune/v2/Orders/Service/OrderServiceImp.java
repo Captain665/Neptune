@@ -167,10 +167,10 @@ public class OrderServiceImp implements OrderService {
         Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
         Object customer = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
         OrderAmountResponse orderAmountResponse = amountModel(saveOrder);
-        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getDeliveryDate(),
-                saveOrder.getBookingDate(), saveOrder.getStatus(), saveOrder.getTrainName(), saveOrder.getTrainNo(),
-                saveOrder.getStationCode(), saveOrder.getStationName(), saveOrder.getCoach(), saveOrder.getBerth(),
-                saveOrder.getOrderFrom(), saveOrder.getPnr(), orderAmountResponse, orderItemsData, outlet, customer);
+        OrderDeliveryResponse orderDeliveryResponse = deliveryModel(saveOrder);
+        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getBookingDate(),
+                saveOrder.getStatus(), saveOrder.getOrderFrom(), saveOrder.getPnr(), orderDeliveryResponse,
+                orderAmountResponse, orderItemsData, outlet, customer);
 
 
         runAsync(() -> orderPushService.OrderPushToIrctc(saveOrder));
@@ -202,12 +202,14 @@ public class OrderServiceImp implements OrderService {
         OrderOutletResponse orderOutletResponse = outletModel(outletRepo.findByOutletId(
                 Long.parseLong(saveOrder.getOutletId())));
         OrderAmountResponse orderAmountResponse = amountModel(saveOrder);
+        OrderDeliveryResponse orderDeliveryResponse = deliveryModel(saveOrder);
 
 
-        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getDeliveryDate(), saveOrder.getBookingDate(), saveOrder.getStatus(),
-                saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
-                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(), saveOrder.getPnr(),
+        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getBookingDate(), saveOrder.getStatus(),
+                saveOrder.getOrderFrom(), saveOrder.getPnr(), orderDeliveryResponse,
                 orderAmountResponse, orderItems, orderOutletResponse, orderCustomerResponse);
+        logger.info("Order Response {}",orderResponseBody);
+
 
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBody),
                 HttpStatus.OK);
@@ -218,32 +220,30 @@ public class OrderServiceImp implements OrderService {
     public ResponseEntity<ResponseDTO> getAllOrder(Long customerId) {
 
         List<Orders> ordersList = orderRepository.findByCustomerId(String.valueOf(customerId));
-        logger.info("order list........... {}", ordersList.toString());
+
         List<OrderResponseBody> orderResponseBodies = new ArrayList<>();
         for (Orders orders : ordersList) {
             OrderResponseBody orderBody = new OrderResponseBody();
             orderBody.setId(orders.getId());
-            orderBody.setTrainName(orders.getTrainName());
-            orderBody.setTrainNo(orders.getTrainNo());
-            orderBody.setStationCode(orders.getStationCode());
-            orderBody.setStationName(orders.getStationName());
-            orderBody.setCoach(orders.getCoach());
-            orderBody.setBerth(orders.getBerth());
             orderBody.setBookingDate(orders.getBookingDate());
             orderBody.setStatus(orders.getStatus());
             orderBody.setPnr(orders.getPnr());
             orderBody.setOrderFrom(orders.getOrderFrom());
-            orderBody.setDeliveryDate(orders.getDeliveryDate());
-            List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orders.getId()));
-            Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders.getOutletId())));
-            Optional<Customer> customerDetails = custLoginRepo.findById(customerId);
+            List<OrderItemResponse> orderItemResponse = orderItemModel(orderItemsRepository.
+                    findByOrderId(String.valueOf(orders.getId())));
+            OrderOutletResponse orderOutletResponse = outletModel(outletRepo.
+                    findByOutletId(Long.parseLong(orders.getOutletId())));
+            OrderCustomerResponse orderCustomerResponse = customerModel(custLoginRepo.findByCustomerId(customerId));
             OrderAmountResponse orderAmountResponse = amountModel(orders);
+            OrderDeliveryResponse orderDeliveryResponse = deliveryModel(orders);
+            orderBody.setDelivery(orderDeliveryResponse);
             orderBody.setPayments(orderAmountResponse);
-            orderBody.setCustomerDetail(customerDetails);
-            orderBody.setOutlets(outlet);
-            orderBody.setOrderItems(orderItemsList);
+            orderBody.setCustomerDetail(orderCustomerResponse);
+            orderBody.setOutlets(orderOutletResponse);
+            orderBody.setOrderItems(orderItemResponse);
             orderResponseBodies.add(orderBody);
         }
+        logger.info("Response {}",orderResponseBodies);
 
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBodies),
                 HttpStatus.OK);
@@ -297,11 +297,11 @@ public class OrderServiceImp implements OrderService {
 
             Orders orders2 = orderRepository.save(orders1);
             OrderAmountResponse orderAmountResponse = amountModel(orders2);
+            OrderDeliveryResponse orderDeliveryResponse = deliveryModel(orders2);
 
-            OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(), orders2.getDeliveryDate(),
-                    orders2.getBookingDate(), orders2.getStatus(), orders2.getTrainName(), orders2.getTrainNo(),
-                    orders2.getStationCode(), orders2.getStationName(), orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(),
-                    orders2.getPnr(), orderAmountResponse, orderItemsList, outlet, customer);
+            OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(),
+                    orders2.getBookingDate(), orders2.getStatus(), orders2.getOrderFrom(),
+                    orders2.getPnr(),orderDeliveryResponse, orderAmountResponse, orderItemsList, outlet, customer);
 
             return ApiSuccess(orderResponseBody);
         } catch (Exception e) {
@@ -353,5 +353,17 @@ public class OrderServiceImp implements OrderService {
         orderAmountResponse.setDeliveryCharge(order.getDeliveryCharge());
         orderAmountResponse.setPayable_amount(order.getPayable_amount());
         return orderAmountResponse;
+    }
+
+    public OrderDeliveryResponse deliveryModel(Orders orders) {
+        OrderDeliveryResponse orderDeliveryResponse = new OrderDeliveryResponse();
+        orderDeliveryResponse.setDeliveryDate(orders.getDeliveryDate());
+        orderDeliveryResponse.setBerth(orders.getBerth());
+        orderDeliveryResponse.setCoach(orders.getCoach());
+        orderDeliveryResponse.setStationCode(orders.getStationCode());
+        orderDeliveryResponse.setStationName(orders.getStationName());
+        orderDeliveryResponse.setTrainName(orders.getTrainName());
+        orderDeliveryResponse.setTrainNo(orders.getTrainNo());
+        return orderDeliveryResponse;
     }
 }
