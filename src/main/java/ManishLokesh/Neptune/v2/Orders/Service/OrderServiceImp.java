@@ -15,10 +15,7 @@ import ManishLokesh.Neptune.v2.Orders.Repository.OrderRepository;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderItemRequest;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderRequestBody;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
-import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderCustomerResponse;
-import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderItemResponse;
-import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderOutletResponse;
-import ManishLokesh.Neptune.v2.Orders.ResponseBody.OrderResponseBody;
+import ManishLokesh.Neptune.v2.Orders.ResponseBody.*;
 import ManishLokesh.Neptune.v2.Outlets.OutletResponse.OutletResponse;
 import ManishLokesh.Neptune.v2.customer.Entity.Customer;
 import ManishLokesh.Neptune.v2.customer.Repository.CustLoginRepo;
@@ -28,6 +25,7 @@ import ManishLokesh.Neptune.v2.customer.ResponseBody.CustLoginResponseBody;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.criterion.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,10 +166,11 @@ public class OrderServiceImp implements OrderService {
         List<OrderItems> orderItemsData = orderItemsRepository.saveAllAndFlush(orderItemsList);
         Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
         Object customer = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
-        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getTotalAmount(), saveOrder.getGst(), saveOrder.getDeliveryCharge(),
-                saveOrder.getPayable_amount(), saveOrder.getDeliveryDate(), saveOrder.getBookingDate(), saveOrder.getPaymentType(), saveOrder.getStatus(),
-                saveOrder.getOutletId(), orderItemsData, saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
-                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(), saveOrder.getPnr(), saveOrder.getCreatedAt(), saveOrder.getCreatedBy(), outlet, customer);
+        OrderAmountResponse orderAmountResponse = amountModel(saveOrder);
+        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getDeliveryDate(),
+                saveOrder.getBookingDate(), saveOrder.getStatus(), saveOrder.getTrainName(), saveOrder.getTrainNo(),
+                saveOrder.getStationCode(), saveOrder.getStationName(), saveOrder.getCoach(), saveOrder.getBerth(),
+                saveOrder.getOrderFrom(), saveOrder.getPnr(), orderAmountResponse, orderItemsData, outlet, customer);
 
 
         runAsync(() -> orderPushService.OrderPushToIrctc(saveOrder));
@@ -200,15 +199,15 @@ public class OrderServiceImp implements OrderService {
                 String.valueOf(orderId)));
         OrderCustomerResponse orderCustomerResponse = customerModel(custLoginRepo.findByCustomerId(
                 Long.parseLong(saveOrder.getCustomerId())));
-
         OrderOutletResponse orderOutletResponse = outletModel(outletRepo.findByOutletId(
                 Long.parseLong(saveOrder.getOutletId())));
+        OrderAmountResponse orderAmountResponse = amountModel(saveOrder);
 
 
-        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getTotalAmount(), saveOrder.getGst(), saveOrder.getDeliveryCharge(),
-                saveOrder.getPayable_amount(), saveOrder.getDeliveryDate(), saveOrder.getBookingDate(), saveOrder.getPaymentType(), saveOrder.getStatus(),
-                saveOrder.getOutletId(), orderItems , saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
-                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(), saveOrder.getPnr(), saveOrder.getCreatedAt(), saveOrder.getCreatedBy(), orderOutletResponse, orderCustomerResponse);
+        OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getDeliveryDate(), saveOrder.getBookingDate(), saveOrder.getStatus(),
+                saveOrder.getTrainName(), saveOrder.getTrainNo(), saveOrder.getStationCode(), saveOrder.getStationName(),
+                saveOrder.getCoach(), saveOrder.getBerth(), saveOrder.getOrderFrom(), saveOrder.getPnr(),
+                orderAmountResponse, orderItems, orderOutletResponse, orderCustomerResponse);
 
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBody),
                 HttpStatus.OK);
@@ -231,21 +230,15 @@ public class OrderServiceImp implements OrderService {
             orderBody.setCoach(orders.getCoach());
             orderBody.setBerth(orders.getBerth());
             orderBody.setBookingDate(orders.getBookingDate());
-            orderBody.setOutletId(orders.getOutletId());
-            orderBody.setCreatedAt(orders.getCreatedAt());
             orderBody.setStatus(orders.getStatus());
-            orderBody.setCreatedBy(orders.getCreatedBy());
             orderBody.setPnr(orders.getPnr());
-            orderBody.setPaymentType(orders.getPaymentType());
-            orderBody.setDeliveryCharge(orders.getDeliveryCharge());
             orderBody.setOrderFrom(orders.getOrderFrom());
-            orderBody.setTotalAmount(orders.getTotalAmount());
-            orderBody.setGst(orders.getGst());
-            orderBody.setPayable_amount(orders.getPayable_amount());
             orderBody.setDeliveryDate(orders.getDeliveryDate());
             List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orders.getId()));
             Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders.getOutletId())));
             Optional<Customer> customerDetails = custLoginRepo.findById(customerId);
+            OrderAmountResponse orderAmountResponse = amountModel(orders);
+            orderBody.setPayments(orderAmountResponse);
             orderBody.setCustomerDetail(customerDetails);
             orderBody.setOutlets(outlet);
             orderBody.setOrderItems(orderItemsList);
@@ -303,11 +296,12 @@ public class OrderServiceImp implements OrderService {
             }
 
             Orders orders2 = orderRepository.save(orders1);
+            OrderAmountResponse orderAmountResponse = amountModel(orders2);
 
-            OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(), orders2.getTotalAmount(), orders2.getGst(), orders2.getDeliveryCharge(),
-                    orders2.getPayable_amount(), orders2.getDeliveryDate(), orders2.getBookingDate(), orders2.getPaymentType(), orders2.getStatus(),
-                    orders2.getOutletId(), orderItemsList, orders2.getTrainName(), orders2.getTrainNo(), orders2.getStationCode(), orders2.getStationName(),
-                    orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(), orders2.getPnr(), orders2.getCreatedAt(), orders2.getCreatedBy(), outlet, customer);
+            OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(), orders2.getDeliveryDate(),
+                    orders2.getBookingDate(), orders2.getStatus(), orders2.getTrainName(), orders2.getTrainNo(),
+                    orders2.getStationCode(), orders2.getStationName(), orders2.getCoach(), orders2.getBerth(), orders2.getOrderFrom(),
+                    orders2.getPnr(), orderAmountResponse, orderItemsList, outlet, customer);
 
             return ApiSuccess(orderResponseBody);
         } catch (Exception e) {
@@ -338,7 +332,7 @@ public class OrderServiceImp implements OrderService {
     public List<OrderItemResponse> orderItemModel(List<OrderItems> orderItems) {
         List<OrderItemResponse> itemResponses = new ArrayList<>();
 
-        for(OrderItems orderItems1 : orderItems){
+        for (OrderItems orderItems1 : orderItems) {
             OrderItemResponse orderItemResponse = new OrderItemResponse();
             orderItemResponse.setId(orderItems1.getId());
             orderItemResponse.setItemName(orderItems1.getItemName());
@@ -349,5 +343,15 @@ public class OrderServiceImp implements OrderService {
             itemResponses.add(orderItemResponse);
         }
         return itemResponses;
+    }
+
+    public OrderAmountResponse amountModel(Orders order) {
+        OrderAmountResponse orderAmountResponse = new OrderAmountResponse();
+        orderAmountResponse.setPaymentType(order.getPaymentType());
+        orderAmountResponse.setTotalAmount(order.getTotalAmount());
+        orderAmountResponse.setGst(order.getGst());
+        orderAmountResponse.setDeliveryCharge(order.getDeliveryCharge());
+        orderAmountResponse.setPayable_amount(order.getPayable_amount());
+        return orderAmountResponse;
     }
 }

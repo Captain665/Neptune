@@ -1,7 +1,6 @@
 package ManishLokesh.Neptune.v2.Orders.ResponseBody;
 
 
-
 public class OrderResponseBody {
     private Long id;
     private String trainName;
@@ -12,21 +11,40 @@ public class OrderResponseBody {
     private String berth;
     private String deliveryDate;
     private String bookingDate;
-    private String outletId;
-    private String createdAt;
     private String status;
-    private String createdBy;
     private String pnr;
-    private String paymentType;
-    private Double deliveryCharge;
     private String orderFrom;
-    private Double totalAmount;
-    private Double gst;
-    private Double payable_amount;
+    private Object payments;
     private Object orderItems;
     private Object outlets;
     private Object customerDetail;
 
+
+    public OrderResponseBody() {
+
+    }
+
+    public OrderResponseBody(Long id, String deliveryDate, String bookingDate,
+                             String status, String trainName, String trainNo, String stationCode,
+                             String stationName, String coach, String berth, String orderFrom,
+                             String pnr, Object payments, Object orderItems, Object outlets, Object customerDetail) {
+        this.id = id;
+        this.deliveryDate = deliveryDate;
+        this.bookingDate = bookingDate;
+        this.status = status;
+        this.trainName = trainName;
+        this.trainNo = trainNo;
+        this.stationCode = stationCode;
+        this.stationName = stationName;
+        this.coach = coach;
+        this.berth = berth;
+        this.orderFrom = orderFrom;
+        this.pnr = pnr;
+        this.payments = payments;
+        this.orderItems = orderItems;
+        this.outlets = outlets;
+        this.customerDetail = customerDetail;
+    }
 
     @Override
     public String toString() {
@@ -40,78 +58,14 @@ public class OrderResponseBody {
                 ", berth='" + berth + '\'' +
                 ", deliveryDate='" + deliveryDate + '\'' +
                 ", bookingDate='" + bookingDate + '\'' +
-                ", outletId='" + outletId + '\'' +
-                ", createdAt='" + createdAt + '\'' +
                 ", status='" + status + '\'' +
-                ", createdBy='" + createdBy + '\'' +
                 ", pnr='" + pnr + '\'' +
-                ", paymentType='" + paymentType + '\'' +
-                ", deliveryCharge=" + deliveryCharge +
                 ", orderFrom='" + orderFrom + '\'' +
-                ", totalAmount=" + totalAmount +
-                ", gst=" + gst +
-                ", payable_amount=" + payable_amount +
+                ", payments=" + payments +
                 ", orderItems=" + orderItems +
                 ", outlets=" + outlets +
                 ", customerDetail=" + customerDetail +
                 '}';
-    }
-
-    public OrderResponseBody(){
-
-    }
-
-    public OrderResponseBody(Long id,Double totalAmount, Double gst, Double deliveryCharge, Double payable_amount,String deliveryDate,String bookingDate,
-                             String paymentType,String status ,String outletId,Object orderItems,String trainName, String trainNo,String stationCode,
-                             String stationName,String coach,String berth,String orderFrom,String pnr,String createdAt,String createdBy, Object outlets,Object customerDetail){
-        this.id = id;
-        this.totalAmount = totalAmount;
-        this.gst = gst;
-        this.deliveryCharge = deliveryCharge;
-        this.payable_amount = payable_amount;
-        this.deliveryDate = deliveryDate;
-        this.bookingDate = bookingDate;
-        this.paymentType = paymentType;
-        this.status = status;
-        this.outletId = outletId;
-        this.orderItems = orderItems;
-        this.trainName = trainName;
-        this.trainNo = trainNo;
-        this.stationCode = stationCode;
-        this.stationName = stationName;
-        this.coach = coach;
-        this.berth = berth;
-        this.orderFrom = orderFrom;
-        this.pnr = pnr;
-        this.createdAt = createdAt;
-        this.createdBy = createdBy;
-        this.outlets = outlets;
-        this.customerDetail = customerDetail;
-    }
-
-
-    public Object getOutlets() {
-        return outlets;
-    }
-
-    public void setOutlets(Object outlets) {
-        this.outlets = outlets;
-    }
-
-    public Object getCustomerDetail() {
-        return customerDetail;
-    }
-
-    public void setCustomerDetail(Object customerDetail) {
-        this.customerDetail = customerDetail;
-    }
-
-    public String getDeliveryDate() {
-        return deliveryDate;
-    }
-
-    public void setDeliveryDate(String deliveryDate) {
-        this.deliveryDate = deliveryDate;
     }
 
     public Long getId() {
@@ -170,29 +124,20 @@ public class OrderResponseBody {
         this.berth = berth;
     }
 
+    public String getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(String deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+
     public String getBookingDate() {
         return bookingDate;
     }
 
     public void setBookingDate(String bookingDate) {
         this.bookingDate = bookingDate;
-    }
-
-    public String getOutletId() {
-        return outletId;
-    }
-
-    public void setOutletId(String outletId) {
-        this.outletId = outletId;
-    }
-
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
     }
 
     public String getStatus() {
@@ -203,36 +148,12 @@ public class OrderResponseBody {
         this.status = status;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public String getPnr() {
         return pnr;
     }
 
     public void setPnr(String pnr) {
         this.pnr = pnr;
-    }
-
-    public String getPaymentType() {
-        return paymentType;
-    }
-
-    public void setPaymentType(String paymentType) {
-        this.paymentType = paymentType;
-    }
-
-    public Double getDeliveryCharge() {
-        return deliveryCharge;
-    }
-
-    public void setDeliveryCharge(Double deliveryCharge) {
-        this.deliveryCharge = deliveryCharge;
     }
 
     public String getOrderFrom() {
@@ -243,28 +164,12 @@ public class OrderResponseBody {
         this.orderFrom = orderFrom;
     }
 
-    public Double getTotalAmount() {
-        return totalAmount;
+    public Object getPayments() {
+        return payments;
     }
 
-    public void setTotalAmount(Double totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public Double getGst() {
-        return gst;
-    }
-
-    public void setGst(Double gst) {
-        this.gst = gst;
-    }
-
-    public Double getPayable_amount() {
-        return payable_amount;
-    }
-
-    public void setPayable_amount(Double payable_amount) {
-        this.payable_amount = payable_amount;
+    public void setPayments(Object payments) {
+        this.payments = payments;
     }
 
     public Object getOrderItems() {
@@ -273,5 +178,21 @@ public class OrderResponseBody {
 
     public void setOrderItems(Object orderItems) {
         this.orderItems = orderItems;
+    }
+
+    public Object getOutlets() {
+        return outlets;
+    }
+
+    public void setOutlets(Object outlets) {
+        this.outlets = outlets;
+    }
+
+    public Object getCustomerDetail() {
+        return customerDetail;
+    }
+
+    public void setCustomerDetail(Object customerDetail) {
+        this.customerDetail = customerDetail;
     }
 }
