@@ -1,1 +1,1 @@
-package ManishLokesh.Neptune.v2.Orders.ResponseBody;public class OrderAmountResponse {}
+package ManishLokesh.Neptune.v2.Orders.ResponseBody;public class OrderAmountResponse {}
