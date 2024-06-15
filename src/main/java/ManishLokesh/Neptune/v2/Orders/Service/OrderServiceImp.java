@@ -238,8 +238,8 @@ public class OrderServiceImp implements OrderService {
             OrderDeliveryResponse orderDeliveryResponse = deliveryModel(orders);
             orderBody.setDelivery(orderDeliveryResponse);
             orderBody.setPayments(orderAmountResponse);
-            orderBody.setCustomerDetail(orderCustomerResponse);
-            orderBody.setOutlets(orderOutletResponse);
+            orderBody.setCustomer(orderCustomerResponse);
+            orderBody.setOutlet(orderOutletResponse);
             orderBody.setOrderItems(orderItemResponse);
             orderResponseBodies.add(orderBody);
         }

@@ -108,7 +108,6 @@ public class PNRServiceImp implements PNRservice {
 
         List<StationResponse> stationRes = new ArrayList<>();
         for (JsonNode stationResponse : stationsList) {
-            StationResponse stationResponse1 = new StationResponse();
             String code = stationResponse.get("code").asText();
             String name = stationResponse.get("name").asText();
             String delayArrival = stationResponse.get("delayArrival").asText();
@@ -116,6 +115,8 @@ public class PNRServiceImp implements PNRservice {
             String arrival = stationResponse.get("arrival").asText();
             String departure = stationResponse.get("departure").asText();
             String depDate = stationResponse.get("depDate").asText();
+
+            StationResponse stationResponse1 = new StationResponse();
             stationResponse1.setCode(code);
             stationResponse1.setName(name);
             stationResponse1.setDelayArrival(delayArrival);
@@ -135,6 +136,8 @@ public class PNRServiceImp implements PNRservice {
             boolean isDepDateServiceable = departureDate.isAfter(currentDate) || departureDate.isEqual(currentDate);
             boolean isArriTimeServiceable = isDepDateServiceable && trainArrTime.isAfter(currentTime);
             stationResponse1.setServiceable(isArriTimeServiceable);
+            String isMessage = isArriTimeServiceable ? null : "This station has already been passed in your journey, so you can't book food at this station";
+            stationResponse1.setMessage(isMessage);
             stationRes.add(stationResponse1);
         }
         return stationRes;
@@ -161,7 +164,6 @@ public class PNRServiceImp implements PNRservice {
         trainResponse.setBoarding(boarding);
         trainResponse.setDestination(destination);
         trainResponse.setDt(dt);
-
         return trainResponse;
     }
 

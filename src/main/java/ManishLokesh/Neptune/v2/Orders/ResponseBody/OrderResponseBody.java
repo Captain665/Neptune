@@ -10,8 +10,8 @@ public class OrderResponseBody {
     private Object delivery;
     private Object payments;
     private Object orderItems;
-    private Object outlets;
-    private Object customerDetail;
+    private Object outlet;
+    private Object customer;
 
 
     public OrderResponseBody() {
@@ -19,7 +19,7 @@ public class OrderResponseBody {
     }
 
     public OrderResponseBody(Long id, String bookingDate, String status, String orderFrom, String pnr,Object delivery,
-                             Object payments, Object orderItems, Object outlets, Object customerDetail) {
+                             Object payments, Object orderItems, Object outlet, Object customer) {
         this.id = id;
         this.bookingDate = bookingDate;
         this.status = status;
@@ -28,8 +28,8 @@ public class OrderResponseBody {
         this.delivery = delivery;
         this.payments = payments;
         this.orderItems = orderItems;
-        this.outlets = outlets;
-        this.customerDetail = customerDetail;
+        this.outlet = outlet;
+        this.customer = customer;
     }
 
     @Override
@@ -43,8 +43,8 @@ public class OrderResponseBody {
                 ", delivery=" + delivery +
                 ", payments=" + payments +
                 ", orderItems=" + orderItems +
-                ", outlets=" + outlets +
-                ", customerDetail=" + customerDetail +
+                ", outlet=" + outlet +
+                ", customer=" + customer +
                 '}';
     }
 
@@ -112,19 +112,19 @@ public class OrderResponseBody {
         this.orderItems = orderItems;
     }
 
-    public Object getOutlets() {
-        return outlets;
+    public Object getOutlet() {
+        return outlet;
     }
 
-    public void setOutlets(Object outlets) {
-        this.outlets = outlets;
+    public void setOutlet(Object outlet) {
+        this.outlet = outlet;
     }
 
-    public Object getCustomerDetail() {
-        return customerDetail;
+    public Object getCustomer() {
+        return customer;
     }
 
-    public void setCustomerDetail(Object customerDetail) {
-        this.customerDetail = customerDetail;
+    public void setCustomer(Object customer) {
+        this.customer = customer;
     }
 }
