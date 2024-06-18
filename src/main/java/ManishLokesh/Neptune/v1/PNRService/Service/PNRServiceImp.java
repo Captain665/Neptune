@@ -144,11 +144,6 @@ public class PNRServiceImp implements PNRservice {
                 stationResponse1.setServiceable(false);
                 stationResponse1.setMessage("This station has already been passed in your journey, so you can't book food at this station");
             }
-//            boolean isDepDateServiceable = departureDate.isAfter(currentDate) || departureDate.isEqual(currentDate);
-//            boolean isArriTimeServiceable = isDepDateServiceable && trainArrTime.isAfter(currentTime);
-//            stationResponse1.setServiceable(isArriTimeServiceable);
-//            String isMessage = isArriTimeServiceable ? null : "This station has already been passed in your journey, so you can't book food at this station";
-//            stationResponse1.setMessage(isMessage);
             stationRes.add(stationResponse1);
         }
         return stationRes;
