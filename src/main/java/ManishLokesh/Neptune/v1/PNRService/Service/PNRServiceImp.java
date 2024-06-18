@@ -133,11 +133,22 @@ public class PNRServiceImp implements PNRservice {
             LocalTime currentTime = LocalTime.parse(LocalTime.now().format(timeForMatter),timeForMatter);
             LocalTime trainArrTime = LocalTime.parse(Objects.equals(arrival, "--") ? departure : arrival ,timeForMatter);
 
-            boolean isDepDateServiceable = departureDate.isAfter(currentDate) || departureDate.isEqual(currentDate);
-            boolean isArriTimeServiceable = isDepDateServiceable && trainArrTime.isAfter(currentTime);
-            stationResponse1.setServiceable(isArriTimeServiceable);
-            String isMessage = isArriTimeServiceable ? null : "This station has already been passed in your journey, so you can't book food at this station";
-            stationResponse1.setMessage(isMessage);
+            if(departureDate.isAfter(currentDate)){
+                stationResponse1.setServiceable(true);
+                stationResponse1.setMessage(null);
+            }else if(departureDate.isEqual(currentDate)){
+                boolean isSer = trainArrTime.isAfter(currentTime);
+                stationResponse1.setServiceable(isSer);
+                stationResponse1.setMessage(isSer ? null : "This station has already been passed in your journey, so you can't book food at this station");
+            }else{
+                stationResponse1.setServiceable(false);
+                stationResponse1.setMessage("This station has already been passed in your journey, so you can't book food at this station");
+            }
+//            boolean isDepDateServiceable = departureDate.isAfter(currentDate) || departureDate.isEqual(currentDate);
+//            boolean isArriTimeServiceable = isDepDateServiceable && trainArrTime.isAfter(currentTime);
+//            stationResponse1.setServiceable(isArriTimeServiceable);
+//            String isMessage = isArriTimeServiceable ? null : "This station has already been passed in your journey, so you can't book food at this station";
+//            stationResponse1.setMessage(isMessage);
             stationRes.add(stationResponse1);
         }
         return stationRes;

@@ -74,7 +74,6 @@ public class CustomerServiceImp implements CustomerService {
                     "Incorrect Mobile Number",null),
                     HttpStatus.BAD_REQUEST);
         }
-
     }
 
     @Override
