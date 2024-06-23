@@ -49,6 +49,7 @@ public class GetOutletServiceimp implements GetOutletService{
             outletResponse.setRatingCount(outlet.getRatingCount());
             outletResponse.setRatingValue(outlet.getRatingValue());
             outletResponse.setStationCode(stationCode);
+            outletResponse.setMobile(outlet.getMobileNo());
             listOfOutlets.add(outletResponse);
         }
         logger.info("Outlet Response {}",listOfOutlets.toString());
