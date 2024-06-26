@@ -208,7 +208,7 @@ public class OrderServiceImp implements OrderService {
         OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getBookingDate(), saveOrder.getStatus(),
                 saveOrder.getOrderFrom(), saveOrder.getPnr(), orderDeliveryResponse,
                 orderAmountResponse, orderItems, orderOutletResponse, orderCustomerResponse);
-        logger.info("Order Response {}",orderResponseBody);
+        logger.info("Order Response {}", orderResponseBody);
 
 
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBody),
@@ -243,7 +243,7 @@ public class OrderServiceImp implements OrderService {
             orderBody.setOrderItems(orderItemResponse);
             orderResponseBodies.add(orderBody);
         }
-        logger.info("Response {}",orderResponseBodies);
+        logger.info("Response {}", orderResponseBodies);
 
         return new ResponseEntity<>(new ResponseDTO<>("success", null, orderResponseBodies),
                 HttpStatus.OK);
@@ -301,7 +301,7 @@ public class OrderServiceImp implements OrderService {
 
             OrderResponseBody orderResponseBody = new OrderResponseBody(orders2.getId(),
                     orders2.getBookingDate(), orders2.getStatus(), orders2.getOrderFrom(),
-                    orders2.getPnr(),orderDeliveryResponse, orderAmountResponse, orderItemsList, outlet, customer);
+                    orders2.getPnr(), orderDeliveryResponse, orderAmountResponse, orderItemsList, outlet, customer);
 
             return ApiSuccess(orderResponseBody);
         } catch (Exception e) {
@@ -326,6 +326,7 @@ public class OrderServiceImp implements OrderService {
         outletResponse.setCity(outlet.getCity());
         outletResponse.setFssaiNo(outlet.getFssaiNo());
         outletResponse.setMobileNo(outlet.getMobileNo());
+        outletResponse.setLogoImage(outlet.getLogoImage());
         return outletResponse;
     }
 
