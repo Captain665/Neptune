@@ -33,6 +33,7 @@ public class GetOutletServiceimp implements GetOutletService{
             return new ResponseEntity<>(
                     new ResponseDTO("failure","Currently we are not serving on this station",null), HttpStatus.BAD_REQUEST);
         }
+
         List<Outlet> activeOutlets = outletList.stream().filter(Outlet::getActive).collect(Collectors.toList());
         List<OutletResponse> listOfOutlets =  new ArrayList<>();
 
