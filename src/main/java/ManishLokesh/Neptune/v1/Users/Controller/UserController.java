@@ -1,5 +1,5 @@
 package ManishLokesh.Neptune.v1.Users.Controller;
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v1.Users.RequestBody.LoginRequestBody;
 import ManishLokesh.Neptune.v1.Users.RequestBody.OtpValidateRequestBody;
 import ManishLokesh.Neptune.v1.Users.RequestBody.SignupRequestBody;

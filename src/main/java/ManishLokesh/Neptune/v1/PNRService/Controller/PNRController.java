@@ -1,6 +1,6 @@
 package ManishLokesh.Neptune.v1.PNRService.Controller;
 
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v1.PNRService.Service.PNRservice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

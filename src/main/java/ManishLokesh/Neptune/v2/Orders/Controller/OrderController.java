@@ -2,8 +2,8 @@ package ManishLokesh.Neptune.v2.Orders.Controller;
 
 
 import ManishLokesh.Neptune.AuthController.JwtUtil;
-import ManishLokesh.Neptune.ResponseDTO.Response;
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.Response;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderRequestBody;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
 import ManishLokesh.Neptune.v2.Orders.Service.OrderService;
@@ -16,11 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
-import static ManishLokesh.Neptune.ResponseDTO.Response.*;
+import static ManishLokesh.Neptune.Common.Response.*;
 
 @Controller
 public class OrderController {

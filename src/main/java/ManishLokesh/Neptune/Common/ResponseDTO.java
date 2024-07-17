@@ -1,4 +1,4 @@
-package ManishLokesh.Neptune.ResponseDTO;
+package ManishLokesh.Neptune.Common;
 
 public class ResponseDTO<T>{
     public String status;
@@ -6,7 +6,7 @@ public class ResponseDTO<T>{
     public Object result;
 
 
-    public ResponseDTO(String status, String error, Object result) {
+    public ResponseDTO(String status, String error, T result) {
         this.status = status;
         this.error = error;
         this.result = result;

@@ -1,9 +1,8 @@
 package ManishLokesh.Neptune.v2.Orders.Service;
 
 import ManishLokesh.Neptune.PushToIRCTC.OrderStatus;
-import ManishLokesh.Neptune.ResponseDTO.Response;
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
-import ManishLokesh.Neptune.Scheduler.Order.OrderStatusUpdate;
+import ManishLokesh.Neptune.Common.Response;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Menu;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Outlet;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Repository.MenuRepo;
@@ -16,16 +15,11 @@ import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderItemRequest;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderRequestBody;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
 import ManishLokesh.Neptune.v2.Orders.ResponseBody.*;
-import ManishLokesh.Neptune.v2.Outlets.OutletResponse.OutletResponse;
 import ManishLokesh.Neptune.v2.customer.Entity.Customer;
 import ManishLokesh.Neptune.v2.customer.Repository.CustLoginRepo;
 
-import ManishLokesh.Neptune.v2.customer.RequestBody.CustoLoginRequestBody;
-import ManishLokesh.Neptune.v2.customer.ResponseBody.CustLoginResponseBody;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hibernate.criterion.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +28,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 
-import static ManishLokesh.Neptune.ResponseDTO.Response.ApiFailure;
-import static ManishLokesh.Neptune.ResponseDTO.Response.ApiSuccess;
+import static ManishLokesh.Neptune.Common.Response.ApiFailure;
+import static ManishLokesh.Neptune.Common.Response.ApiSuccess;
 import static java.util.concurrent.CompletableFuture.runAsync;
 
 import java.text.DecimalFormat;

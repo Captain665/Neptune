@@ -2,7 +2,7 @@ package ManishLokesh.Neptune.v2.customer.Service;
 
 import ManishLokesh.Neptune.AuthController.JwtUtil;
 import ManishLokesh.Neptune.EmailTrigger.SendSignupOTP;
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v2.customer.Entity.Customer;
 import ManishLokesh.Neptune.v2.customer.Entity.CustomerSignup;
 import ManishLokesh.Neptune.v2.customer.Repository.CustLoginRepo;

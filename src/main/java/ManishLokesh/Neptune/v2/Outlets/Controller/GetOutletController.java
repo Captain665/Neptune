@@ -1,18 +1,20 @@
 package ManishLokesh.Neptune.v2.Outlets.Controller;
 
 import ManishLokesh.Neptune.AuthController.JwtUtil;
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ApiFailure;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v2.Outlets.Service.GetOutletService;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 
-import java.util.Objects;
+import javax.xml.transform.Result;
+import java.util.concurrent.CompletionStage;
+
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 @Controller
 public class GetOutletController {
@@ -23,13 +25,13 @@ public class GetOutletController {
     public JwtUtil jwtUtil;
 
     @GetMapping("/api/v2/outlet/station/{stationCode}")
-    public ResponseEntity<ResponseDTO> GetOutlet(@PathVariable String stationCode) {
-        try{
+    public CompletionStage<Result> ListStationOutlet(@PathVariable String stationCode) {
+        try {
 //            Thread.sleep(5000);
-            return this.getOutletService.GetOutletAll(stationCode);
-        }catch (Exception e){
-            e.printStackTrace();
+            return supplyAsync(() -> this.getOutletService.GetOutletAll(stationCode));
+
+        } catch (Exception e) {
+            return supplyAsync(() -> ResponseEntity.badRequest(new ApiFailure("Some problem occured")));
         }
-        return null;
     }
 }

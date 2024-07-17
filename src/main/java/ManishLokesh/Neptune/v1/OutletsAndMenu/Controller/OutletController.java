@@ -4,7 +4,7 @@ import ManishLokesh.Neptune.AuthController.JwtUtil;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.RequestBody.CreateMenu;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.RequestBody.CreateOutlet;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Service.OutletService;
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

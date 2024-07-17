@@ -1,11 +1,10 @@
 package ManishLokesh.Neptune.v2.Outlets.Service;
 
 
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Outlet;
 import ManishLokesh.Neptune.v2.Outlets.OutletResponse.OutletResponse;
 import ManishLokesh.Neptune.v2.Outlets.Repository.GetOutletRepo;
-import netscape.javascript.JSObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -1,9 +1,11 @@
 package ManishLokesh.Neptune.v2.Outlets.Service;
 
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import org.springframework.http.ResponseEntity;
 
+import java.util.concurrent.CompletionStage;
+
 public interface GetOutletService{
-    public ResponseEntity<ResponseDTO>GetOutletAll(String stationCode);
+    public CompletionStage<Result> GetOutletAll(String stationCode);
 
 }

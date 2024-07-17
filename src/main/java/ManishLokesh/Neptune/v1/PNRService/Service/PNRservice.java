@@ -1,6 +1,6 @@
 package ManishLokesh.Neptune.v1.PNRService.Service;
 
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import org.springframework.http.ResponseEntity;
 
 public interface PNRservice {

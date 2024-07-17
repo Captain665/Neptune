@@ -14,7 +14,7 @@ import ManishLokesh.Neptune.v1.OutletsAndMenu.Repository.OutletClosingRepo;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Repository.OutletRepo;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.RequestBody.CreateMenu;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.RequestBody.CreateOutlet;
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.RequestBody.OutletClosingRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

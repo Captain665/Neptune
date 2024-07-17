@@ -1,6 +1,6 @@
 package ManishLokesh.Neptune.v1.PNRService.Service;
 
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v1.PNRService.PnrResponse.PnrResponse;
 import ManishLokesh.Neptune.v1.PNRService.PnrResponse.SeatResponse;
 import ManishLokesh.Neptune.v1.PNRService.PnrResponse.StationResponse;
@@ -18,7 +18,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;

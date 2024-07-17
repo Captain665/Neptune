@@ -1,6 +1,6 @@
 package ManishLokesh.Neptune.v2.Menu.Service;
 
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.Entity.Menu;
 import ManishLokesh.Neptune.v2.Menu.MenuResponse.MenuResponse;
 import ManishLokesh.Neptune.v2.Menu.Repository.GetMenuRepo;

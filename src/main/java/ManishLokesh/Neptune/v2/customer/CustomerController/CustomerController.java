@@ -1,6 +1,6 @@
 package ManishLokesh.Neptune.v2.customer.CustomerController;
 
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v2.customer.RequestBody.CustOtpValidateRequestBody;
 import ManishLokesh.Neptune.v2.customer.RequestBody.CustoLoginRequestBody;
 import ManishLokesh.Neptune.v2.customer.RequestBody.CustoSignupRequestBody;

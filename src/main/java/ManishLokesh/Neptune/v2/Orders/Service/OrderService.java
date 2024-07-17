@@ -1,9 +1,8 @@
 package ManishLokesh.Neptune.v2.Orders.Service;
 
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderRequestBody;
 import ManishLokesh.Neptune.v2.Orders.RequestBody.OrderStatusBody;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 
 import java.util.concurrent.CompletionStage;

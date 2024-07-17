@@ -2,7 +2,7 @@ package ManishLokesh.Neptune.v1.OutletsAndMenu.Service;
 
 import ManishLokesh.Neptune.v1.OutletsAndMenu.RequestBody.CreateMenu;
 import ManishLokesh.Neptune.v1.OutletsAndMenu.RequestBody.CreateOutlet;
-import ManishLokesh.Neptune.ResponseDTO.ResponseDTO;
+import ManishLokesh.Neptune.Common.ResponseDTO;
 import org.springframework.http.ResponseEntity;
 
 public interface OutletService {
