@@ -12,7 +12,7 @@ public class SendSignupOTP {
 
     public final Logger logger = LoggerFactory.getLogger("email.trigger");
 
-    public void sendOTP(String receiver, String otp ,String subject, String text){
+    public void sendOTP(String receiver,String subject, String text){
         logger.info("email is triggering......");
 
         String host = "smtp.gmail.com";
@@ -46,10 +46,10 @@ public class SendSignupOTP {
             message.setFrom(new InternetAddress(sender));
             message.addRecipient(Message.RecipientType.TO,new InternetAddress(receiver));
             message.setSubject(subject);
-            message.setText(text + otp);
+            message.setText(text);
 
             Transport.send(message);
-            logger.info("receiver " + receiver + "subject " + subject + "message" + message);
+            logger.info("receiver " + receiver + " Subject " + subject + " Message" + text);
             logger.info("email has been sent");
         }catch (MessagingException max){
             logger.info("Exception is occoured in email triggering......");

@@ -57,7 +57,7 @@ public class SignupServiceImp implements SignupService{
                     signupRepo.save(exist);
                     logger.info("email Id : {}",requestBody.getEmailId());
                     logger.info("otp : {}",otp);
-                    runAsync(() -> sendSignupOTP.sendOTP(requestBody.getEmailId(), otp,"Vendor Signup OTP","Your Signup OTP is :"));
+                    runAsync(() -> sendSignupOTP.sendOTP(requestBody.getEmailId(),"Vendor Signup OTP","Your Signup OTP is :" + otp));
                     return new ResponseEntity<>(new ResponseDTO<>("success",null,
                             "OTP sent to the registered Email ID"),HttpStatus.OK);
                 }
@@ -77,7 +77,7 @@ public class SignupServiceImp implements SignupService{
             logger.info("email Id : {}",signup.getEmailId());
             logger.info("otp : {}",otp);
             logger.info("response : OTP sent to the registered Email Id");
-            runAsync(() -> sendSignupOTP.sendOTP(signup.getEmailId(), otp,"Vendor Signup OTP","Your Signup OTP is :"));
+            runAsync(() -> sendSignupOTP.sendOTP(signup.getEmailId(),"Vendor Signup OTP","Your Signup OTP is :" + otp));
             return new ResponseEntity<>(new ResponseDTO<>("success",null,
                     "OTP sent to the registered Email Id"),HttpStatus.OK);
         }catch (Exception e){

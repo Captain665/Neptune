@@ -98,7 +98,7 @@ public class CustomerServiceImp implements CustomerService {
                 exist.setOtp(otp);
                 logger.info("customer email id : {}",requestBody.getEmailId());
                 logger.info("otp is : {}",otp);
-                runAsync(() -> sendSignupOTP.sendOTP(requestBody.getEmailId(), otp,"Customer Signup OTP","Your Signup OTP is :"));
+                runAsync(() -> sendSignupOTP.sendOTP(requestBody.getEmailId(),"Customer Signup OTP","Your Signup OTP is :"+ otp));
                 signupRepo.save(exist);
                 return new ResponseEntity<>(new ResponseDTO("success",null,
                         "Otp sent to the Register Email Id"),HttpStatus.OK);
@@ -117,7 +117,7 @@ public class CustomerServiceImp implements CustomerService {
             String password = bCryptPasswordEncoder.encode(requestBody.getPassword());
             customerSignup.setPassword(password);
             signupRepo.save(customerSignup);
-            runAsync(() -> sendSignupOTP.sendOTP(requestBody.getEmailId(),otp,"Customer Signup OTP","Your Signup OTP is :"));
+            runAsync(() -> sendSignupOTP.sendOTP(requestBody.getEmailId(),"Customer Signup OTP","Your Signup OTP is :"+otp));
 
             return new ResponseEntity<>(new ResponseDTO("success",null,
                     "Otp sent to the Register Email Id"),HttpStatus.OK);

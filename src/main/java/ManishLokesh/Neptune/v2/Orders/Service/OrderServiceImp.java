@@ -66,6 +66,7 @@ public class OrderServiceImp implements OrderService {
     public Response response;
     @Autowired
     public OrderStatus orderStatus;
+    public SendSignupOTP signupOTP = new SendSignupOTP();
 
     private final ObjectMapper objectMapper;
 
@@ -166,7 +167,7 @@ public class OrderServiceImp implements OrderService {
         }
         List<OrderItems> orderItemsData = orderItemsRepository.saveAllAndFlush(orderItemsList);
         Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(saveOrder.getOutletId())));
-        Object customer = custLoginRepo.findById(Long.parseLong(saveOrder.getCustomerId()));
+        OrderCustomerResponse customer = customerModel(custLoginRepo.findByCustomerId(Long.parseLong(saveOrder.getCustomerId())));
         OrderAmountResponse orderAmountResponse = amountModel(saveOrder);
         OrderDeliveryResponse orderDeliveryResponse = deliveryModel(saveOrder);
         OrderResponseBody orderResponseBody = new OrderResponseBody(saveOrder.getId(), saveOrder.getBookingDate(),
@@ -174,7 +175,12 @@ public class OrderServiceImp implements OrderService {
                 orderAmountResponse, orderItemsData, outlet, customer);
 
 
-        runAsync(() -> orderPushService.OrderPushToIrctc(saveOrder));
+        runAsync(() -> orderPushService.OrderPushToIrctc(saveOrder))
+                .thenRunAsync(() -> signupOTP.sendOTP(
+                        customer.getEmailId(),
+                        "Order Booking Confirmation",
+                        "Your Order has been booked successfully and your order id is " + orders.getId())
+                );
 
         logger.info("response body {}", orderResponseBody.toString());
 
