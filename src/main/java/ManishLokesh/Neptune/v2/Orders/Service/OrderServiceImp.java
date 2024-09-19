@@ -268,7 +268,7 @@ public class OrderServiceImp implements OrderService {
             Orders orders1 = orders.get();
             List<OrderItems> orderItemsList = orderItemsRepository.findByOrderId(String.valueOf(orderId));
             Optional<Outlet> outlet = outletRepo.findById((Long.parseLong(orders1.getOutletId())));
-            Object customer = custLoginRepo.findById(Long.parseLong(orders1.getCustomerId()));
+            OrderCustomerResponse customer = customerModel(custLoginRepo.findByCustomerId(Long.parseLong(orders1.getCustomerId())));
 
             if (Objects.equals(orders1.getStatus(), "CANCELLED")) {
                 logger.info("Order already marked as cancelled");
@@ -310,6 +310,11 @@ public class OrderServiceImp implements OrderService {
                     orders2.getBookingDate(), orders2.getStatus(), orders2.getOrderFrom(),
                     orders2.getPnr(), orderDeliveryResponse, orderAmountResponse, orderItemsList, outlet, customer);
 
+            runAsync(() -> signupOTP.sendOTP(
+                    customer.getEmailId(),
+                    "Order Status",
+                    "Your order "+orders1.getId()+" has been marked as " + orders2.getStatus() + " enjoy your meal !")
+            );
             return ApiSuccess(orderResponseBody);
         } catch (Exception e) {
             return ApiFailure(e.getMessage());
