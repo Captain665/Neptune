@@ -9,7 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScan({"ManishLokesh.Neptune.v1",
 		"ManishLokesh.Neptune.v2","ManishLokesh.Neptune.AuthController",
 		"ManishLokesh.Neptune.v2","ManishLokesh.Neptune.EmailTrigger",
-		"ManishLokesh.Neptune.Scheduler", "ManishLokesh.Neptune.PushToIRCTC"})
+		"ManishLokesh.Neptune.Scheduler", "ManishLokesh.Neptune.PushToIRCTC",
+		"ManishLokesh.Neptune.GlobalExpectionHandeling"})
 @EnableScheduling
 public class NeptuneApplication {
 

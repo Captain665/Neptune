@@ -8,14 +8,14 @@ import javax.validation.constraints.Size;
 public class CustoLoginRequestBody {
 
 
-    @NotNull(message = "mobileNumber is not null")
-    @NotBlank(message = "mobileNumber is not blank")
-    @NotEmpty(message = "mobileNumber is not empty")
+    @NotNull(message = "mobileNumber should not null")
+    @NotBlank(message = "mobileNumber should not blank")
+    @NotEmpty(message = "mobileNumber should not empty")
     @Size(min = 10,max = 10, message = "The length of mobile number must be 10 numbers.")
     private String mobileNumber;
-    @NotNull(message = "password is not null")
-    @NotBlank(message = "password is not blank")
-    @NotEmpty(message = "password is not empty")
+    @NotNull(message = "password should not null")
+    @NotBlank(message = "password should not blank")
+    @NotEmpty(message = "password should not empty")
     private String password;
 
 

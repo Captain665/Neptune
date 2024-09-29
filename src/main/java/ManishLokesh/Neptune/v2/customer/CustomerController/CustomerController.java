@@ -8,6 +8,7 @@ import ManishLokesh.Neptune.v2.customer.Service.CustomerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +37,7 @@ public class CustomerController {
     }
 
     @PostMapping("/api/v2/otp-validate")
-    public ResponseEntity<ResponseDTO> valdateOtp(@RequestBody CustOtpValidateRequestBody otpValidateRequestBody){
+    public ResponseEntity<ResponseDTO> valdateOtp(@Valid @RequestBody CustOtpValidateRequestBody otpValidateRequestBody){
         try{
 //            Thread.sleep(5000);
             return this.customerLoginService.CustoOtpValidate(otpValidateRequestBody);
@@ -46,7 +47,7 @@ public class CustomerController {
         return null;
     }
     @PostMapping("/api/v2/signup")
-    public ResponseEntity<ResponseDTO> customerSignUp(@RequestBody CustoSignupRequestBody newCustomerSignup){
+    public ResponseEntity<ResponseDTO> customerSignUp(@Valid @RequestBody CustoSignupRequestBody newCustomerSignup){
         try{
 //            Thread.sleep(5000);
             return this.customerLoginService.newCustomerSignUp(newCustomerSignup);

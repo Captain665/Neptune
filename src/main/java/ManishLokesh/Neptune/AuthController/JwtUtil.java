@@ -35,10 +35,10 @@ public class JwtUtil {
     }
 
 
-    public String validateRole(String token) {
+    public String validateRole(String auth) {
+        String token = auth.replace("Bearer", "");
         try{
             Claims claims  = extractTokenDetails(token);
-//            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
             String  id = claims.getSubject();
             logger.info("id is {}",id);
             String role = claims.getAudience();
@@ -48,7 +48,6 @@ public class JwtUtil {
         }catch (Exception e){
             return "Not Authorize to access this";
         }
-//            Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
 
     public Long validateId(String token){
